@@ -79,6 +79,18 @@
             border-radius: 4px;
         }
         
+        label:has(+ input[required]),
+        label:has(+ textarea[required]) {
+            font-weight: bold;
+            color: #d73502;
+        }
+        
+        input[required]:invalid,
+        textarea[required]:invalid {
+            border-color: #d73502;
+            box-shadow: 0 0 0 1px rgba(215, 53, 2, 0.1);
+        }
+        
         .success {
             background-color: #d4edda;
             color: #155724;
@@ -130,22 +142,25 @@
             <select id="model">
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster, cheaper)</option>
                 <option value="gpt-4">GPT-4 (Better quality, more expensive)</option>
+                <option value="gpt-4.1">GPT-4.1 (Latest model, enhanced capabilities)</option>
+                <option value="gpt-4.1-nano">GPT-4.1 Nano (Lightweight, fast)</option>
+                <option value="gpt-4o-mini">GPT-4o Mini (Optimized performance)</option>
             </select>
         </div>
     </div>
     
     <div class="card">
         <h2>Freelancer Profile</h2>
-        <p>Provide details about your experience and skills. This information will be used to personalize the proposals.</p>
+        <p>Provide details about your experience and skills. This information will be used to personalize the proposals. <strong>Required fields are marked with *</strong></p>
         
         <div class="form-group">
-            <label for="experience">Experience</label>
-            <input type="text" id="experience" placeholder="e.g., 5+ years in web development">
+            <label for="experience">Experience *</label>
+            <input type="text" id="experience" placeholder="e.g., 5+ years in web development" required>
         </div>
         
         <div class="form-group">
-            <label for="specialty">Specialty/Skills</label>
-            <textarea id="specialty" placeholder="e.g., Full-stack development with React, Node.js, and MongoDB"></textarea>
+            <label for="specialty">Specialty/Skills *</label>
+            <textarea id="specialty" placeholder="e.g., Full-stack development with React, Node.js, and MongoDB" required></textarea>
         </div>
         
         <div class="form-group">

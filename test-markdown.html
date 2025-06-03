@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .original {
+            background-color: #f8f9fa;
+        }
+        .converted {
+            background-color: #e8f5e8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Markdown to HTML Conversion Test</h1>
+    
+    <div class="test-container original">
+        <h2>Original Markdown Text:</h2>
+        <pre id="original-text"></pre>
+    </div>
+    
+    <div class="test-container converted">
+        <h2>Converted HTML Display:</h2>
+        <div id="converted-html"></div>
+    </div>
+    
+    <button onclick="testConversion()" style="background: #14a800; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+        Test Markdown Conversion
+    </button>
+
+    <script>
+        // Copy the conversion function from content.js
+        function convertMarkdownToHTML(text) {
+            if (!text) return '';
+            
+            let html = text;
+            
+            // First, temporarily replace **bold** with a placeholder to avoid conflicts
+            const boldPlaceholder = '___BOLD_PLACEHOLDER___';
+            const boldMatches = [];
+            html = html.replace(/\*\*(.*?)\*\*/g, (match, content) => {
+                boldMatches.push(content);
+                return boldPlaceholder + (boldMatches.length - 1) + boldPlaceholder;
+            });
+            
+            // Now convert remaining *italic* (single asterisks)
+            html = html.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
+            
+            // Restore **bold** with proper HTML tags
+            html = html.replace(new RegExp(boldPlaceholder + '(\\d+)' + boldPlaceholder, 'g'), (match, index) => {
+                return '<strong>' + boldMatches[parseInt(index)] + '</strong>';
+            });
+            
+            // Convert ### Headers to <h3>
+            html = html.replace(/^### (.+)$/gm, '<h3 style="margin: 10px 0 5px 0; color: #14a800; font-size: 14px;">$1</h3>');
+            
+            // Convert ## Headers to <h2>  
+            html = html.replace(/^## (.+)$/gm, '<h2 style="margin: 15px 0 8px 0; color: #14a800; font-size: 16px;">$1</h2>');
+            
+            // Convert # Headers to <h1>
+            html = html.replace(/^# (.+)$/gm, '<h1 style="margin: 20px 0 10px 0; color: #14a800; font-size: 18px;">$1</h1>');
+            
+            // Convert line breaks to <br> tags, but preserve paragraph spacing
+            html = html.replace(/\n\n/g, '<br><br>');
+            html = html.replace(/\n/g, '<br>');
+            
+            // Convert bullet points (• or - or *) to proper list items with better styling
+            html = html.replace(/^[•\-\*]\s+(.+)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">• $1</div>');
+            
+            // Convert numbered lists (1. 2. etc.)
+            html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">$1. $2</div>');
+            
+            return html;
+        }
+
+        function testConversion() {
+            const sampleText = `Hi John,
+
+**Your project about creating email campaigns** 📧 caught my attention immediately. I've helped dozens of clients with similar challenges and can **start right away**.
+
+## Why I'm the Right Fit
+
+Here's what makes me **perfect for this project**:
+• I helped a local e-commerce store **increase email click-through rates by 35%** 📈
+• I specialize in tools like **Mailchimp, Klaviyo, and ActiveCampaign**
+• **7+ years in digital marketing** focused on email copywriting
+
+### My Approach
+
+Here's how I'd tackle this:
+1. **Audit your current campaigns** to find improvement areas
+2. **Create a strategy** tailored to your audience and product
+3. **Design and write emails** that match your brand voice
+
+**Let's schedule a quick call** to discuss your goals. Thanks again, and I'd love to help you **make this happen**! 🚀
+
+Best regards,
+Sarah`;
+
+            document.getElementById('original-text').textContent = sampleText;
+            document.getElementById('converted-html').innerHTML = convertMarkdownToHTML(sampleText);
+        }
+
+        // Run test on page load
+        testConversion();
+    </script>
+</body>
+</html>

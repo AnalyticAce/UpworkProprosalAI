@@ -3,10 +3,8 @@
  * Provides a consistent way to access browser APIs in service worker context
  */
 
-const browserAPI = (function() {
-    // In service worker context
-    return self.chrome;
-})();
-
-// Make browserAPI available globally in the service worker scope
-self.browserAPI = browserAPI;
+// Check if browserAPI is already defined
+if (typeof self.browserAPI === 'undefined') {
+    // Define browserAPI if it doesn't exist yet
+    self.browserAPI = self.chrome;
+}

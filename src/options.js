@@ -76,9 +76,19 @@ async function saveSettings() {
     const specialty = document.getElementById('specialty').value.trim();
     const achievements = document.getElementById('achievements').value.trim();
     
-    // Basic validation for API key
+    // Validation for required fields
     if (!apiKey || !apiKey.startsWith('sk-')) {
         showStatusMessage('Please enter a valid OpenAI API key starting with "sk-"', 'error');
+        return;
+    }
+    
+    if (!experience) {
+        showStatusMessage('Experience field is required. Please describe your professional experience.', 'error');
+        return;
+    }
+    
+    if (!specialty) {
+        showStatusMessage('Specialty/Skills field is required. Please describe your main skills and specialization.', 'error');
         return;
     }
     

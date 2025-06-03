@@ -184,44 +184,6 @@ class UpworkJobExtractor {
             </details>
             
             <div style="margin-top: 15px;">
-                <details style="margin-bottom: 10px;">
-                    <summary style="color: #1976d2; font-weight: bold; cursor: pointer; font-size: 13px;">⚙️ AI Proposal Settings</summary>
-                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 8px; border: 1px solid #e0e0e0;">
-                        <div style="margin-bottom: 8px;">
-                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #333;">Tone:</label>
-                            <select id="proposal-tone" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 12px;">
-                                <option value="professional">Professional</option>
-                                <option value="conversational">Conversational</option>
-                                <option value="enthusiastic">Enthusiastic</option>
-                                <option value="formal">Formal</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 8px;">
-                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #333;">Length:</label>
-                            <select id="proposal-length" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 12px;">
-                                <option value="short">Short (250-350 words)</option>
-                                <option value="medium" selected>Medium (350-500 words)</option>
-                                <option value="long">Long (500-700 words)</option>
-                            </select>
-                        </div>
-                        
-                        <div style="margin-bottom: 8px;">
-                            <label style="display: flex; align-items: center; font-size: 12px; color: #333;">
-                                <input type="checkbox" id="include-portfolio" checked style="margin-right: 5px;">
-                                Include portfolio/past work
-                            </label>
-                        </div>
-                        
-                        <div style="margin-bottom: 8px;">
-                            <label style="display: flex; align-items: center; font-size: 12px; color: #333;">
-                                <input type="checkbox" id="include-questions" checked style="margin-right: 5px;">
-                                Include thoughtful questions
-                            </label>
-                        </div>
-                    </div>
-                </details>
-                
                 <button id="generate-proposal-btn" style="
                     background: #1976d2;
                     color: white;
@@ -232,17 +194,13 @@ class UpworkJobExtractor {
                     width: 100%;
                     font-weight: bold;
                 ">✨ Generate AI Proposal</button>
-                
-                <div id="proposal-settings-summary" style="
-                    font-size: 11px;
-                    text-align: center;
-                    margin-top: 5px;
-                    color: #666;
-                ">Professional tone · Medium length · With portfolio & questions</div>
             </div>
             
             <div id="proposal-container" style="display: none; margin-top: 15px;">
                 <strong style="color: #14a800; display: block; margin-bottom: 5px;">✍️ Generated Proposal:</strong>
+                <div style="font-size: 11px; color: #666; margin-bottom: 5px; font-style: italic;">
+                    Bold text is shown formatted here. Copy button preserves formatting when pasted in rich text editors.
+                </div>
                 <div id="proposal-content" style="
                     background: #f8f9fa;
                     padding: 10px;
@@ -250,7 +208,7 @@ class UpworkJobExtractor {
                     max-height: 300px;
                     overflow-y: auto;
                     font-size: 13px;
-                    line-height: 1.4;
+                    line-height: 1.6;
                     color: #333 !important;
                     border: 1px solid #e0e0e0;
                     white-space: pre-wrap;
@@ -262,7 +220,7 @@ class UpworkJobExtractor {
                             @keyframes spin { to { transform: rotate(360deg); } }
                         </style>
                     </div>
-                    <div id="proposal-text"></div>
+                    <div id="proposal-text" style="font-family: inherit; line-height: 1.6;"></div>
                 </div>
                 <button id="copy-proposal" style="
                     background: #14a800;
@@ -274,13 +232,8 @@ class UpworkJobExtractor {
                     width: 100%;
                     font-weight: bold;
                     margin-top: 10px;
-                ">📋 Copy Proposal</button>
-                <p style="
-                    font-size: 11px;
-                    text-align: center;
-                    margin-top: 8px;
-                    color: #666;
-                ">For more options, click on <strong>⚙️ AI Proposal Settings</strong> above</p>
+                ">📋 Copy Proposal (Plain Text)</button>
+                <!-- Settings options removed -->
             </div>
         `;
     }
@@ -289,8 +242,7 @@ class UpworkJobExtractor {
         const generateBtn = document.getElementById('generate-proposal-btn');
         if (!generateBtn) return;
         
-        // Add listeners to update settings summary when options change
-        this.setupSettingsListeners();
+        // Settings listeners removed
         
         generateBtn.addEventListener('click', async () => {
             // Show container and loader
@@ -305,12 +257,6 @@ class UpworkJobExtractor {
             textContainer.textContent = '';
             
             try {
-                // Get user selected settings from the UI
-                const tone = document.getElementById('proposal-tone')?.value || 'professional';
-                const length = document.getElementById('proposal-length')?.value || 'medium';
-                const includePortfolio = document.getElementById('include-portfolio')?.checked ?? true;
-                const includeQuestions = document.getElementById('include-questions')?.checked ?? true;
-                
                 // Get freelancer profile from storage via background script
                 const profileResponse = await new Promise(resolve => {
                     browserAPI.runtime.sendMessage({
@@ -318,25 +264,26 @@ class UpworkJobExtractor {
                     }, resolve);
                 });
                 
-                // Extract profile data from response or use defaults
-                const profileData = profileResponse.success ? profileResponse.profileData : {
-                    freelancerExperience: '5+ years',
-                    freelancerSpecialty: 'full-stack development',
-                    freelancerAchievements: ''
-                };
+                // Check if profile data is configured
+                if (!profileResponse.success || !profileResponse.profileData) {
+                    throw new Error('Freelancer profile not configured. Please set up your profile in the extension settings.');
+                }
                 
-                // Generate proposal using AI service with user-selected options
+                const profileData = profileResponse.profileData;
+                
+                // Validate that all required fields are present
+                if (!profileData.freelancerExperience || !profileData.freelancerSpecialty) {
+                    throw new Error('Please complete your freelancer profile (experience and specialty) in the extension settings before generating proposals.');
+                }
+                
+                // Generate proposal using AI service with profile data
                 const response = await browserAPI.runtime.sendMessage({
                     action: 'generateProposal',
                     jobData: this.jobData,
                     options: {
-                        tone: tone,
-                        length: length,
-                        includePortfolio: includePortfolio,
-                        includeQuestions: includeQuestions,
                         personalInfo: {
-                            experience: profileData.freelancerExperience || '5+ years',
-                            specialty: profileData.freelancerSpecialty || 'full-stack development',
+                            experience: profileData.freelancerExperience,
+                            specialty: profileData.freelancerSpecialty,
                             achievements: profileData.freelancerAchievements || ''
                         }
                     }
@@ -346,17 +293,30 @@ class UpworkJobExtractor {
                 loader.style.display = 'none';
                 
                 if (response.error) {
-                    textContainer.textContent = `Error: ${response.error}\n\nPlease make sure the OpenAI API key is correctly set up in the extension.`;
+                    let errorMessage = response.error;
+                    
+                    // Add helpful instruction for configuration errors
+                    if (errorMessage.includes('not configured') || errorMessage.includes('required')) {
+                        errorMessage += '\n\nTo configure your settings:\n1. Right-click the extension icon\n2. Select "Options"\n3. Fill in your API key and freelancer profile';
+                    }
+                    
+                    textContainer.textContent = `Error: ${errorMessage}`;
                     textContainer.style.color = 'red';
                 } else {
-                    textContainer.textContent = response.proposal;
+                    // Store original proposal text for copying
+                    const originalProposal = response.proposal;
+                    
+                    // Convert markdown to HTML and display
+                    const htmlProposal = this.convertMarkdownToHTML(response.proposal);
+                    textContainer.innerHTML = htmlProposal;
                     textContainer.style.color = '#333';
                     
-                    // Setup copy button
+                    // Setup copy button with rich text (formatted HTML)
                     const copyBtn = document.getElementById('copy-proposal');
                     if (copyBtn) {
-                        copyBtn.addEventListener('click', () => {
-                            navigator.clipboard.writeText(response.proposal).then(() => {
+                        copyBtn.addEventListener('click', async () => {
+                            try {
+                                await this.copyFormattedText(htmlProposal, originalProposal);
                                 const originalText = copyBtn.textContent;
                                 copyBtn.textContent = '✅ Copied!';
                                 copyBtn.style.background = '#28a745';
@@ -365,15 +325,24 @@ class UpworkJobExtractor {
                                     copyBtn.textContent = originalText;
                                     copyBtn.style.background = '#14a800';
                                 }, 2000);
-                            }).catch(err => {
+                            } catch (err) {
                                 console.error('Failed to copy proposal: ', err);
-                            });
+                                // Fallback to plain text copy
+                                navigator.clipboard.writeText(originalProposal);
+                            }
                         });
                     }
                 }
             } catch (error) {
                 loader.style.display = 'none';
-                textContainer.textContent = `Error generating proposal: ${error.message}\n\nPlease make sure you have set up the OpenAI API key in the extension settings.`;
+                let errorMessage = error.message;
+                
+                // Add helpful instruction for configuration errors
+                if (errorMessage.includes('not configured') || errorMessage.includes('required')) {
+                    errorMessage += '\n\nTo configure your settings:\n1. Right-click the extension icon\n2. Select "Options"\n3. Fill in your API key and freelancer profile';
+                }
+                
+                textContainer.textContent = `Error: ${errorMessage}`;
                 textContainer.style.color = 'red';
                 console.error('Error generating proposal:', error);
             }
@@ -381,66 +350,78 @@ class UpworkJobExtractor {
     }
     
     /**
-     * Setup event listeners for proposal settings controls
+     * Convert markdown formatting to HTML for better display
+     * @param {string} text - Text with markdown formatting
+     * @returns {string} HTML formatted text
      */
-    setupSettingsListeners() {
-        const toneSelect = document.getElementById('proposal-tone');
-        const lengthSelect = document.getElementById('proposal-length');
-        const portfolioCheckbox = document.getElementById('include-portfolio');
-        const questionsCheckbox = document.getElementById('include-questions');
+    convertMarkdownToHTML(text) {
+        if (!text) return '';
         
-        // First update with current values
-        this.updateSettingsSummary();
+        let html = text;
         
-        // Add listeners to each control
-        if (toneSelect) {
-            toneSelect.addEventListener('change', () => this.updateSettingsSummary());
-        }
+        // First, temporarily replace **bold** with a placeholder to avoid conflicts
+        const boldPlaceholder = '___BOLD_PLACEHOLDER___';
+        const boldMatches = [];
+        html = html.replace(/\*\*(.*?)\*\*/g, (match, content) => {
+            boldMatches.push(content);
+            return boldPlaceholder + (boldMatches.length - 1) + boldPlaceholder;
+        });
         
-        if (lengthSelect) {
-            lengthSelect.addEventListener('change', () => this.updateSettingsSummary());
-        }
+        // Now convert remaining *italic* (single asterisks)
+        html = html.replace(/\*([^*\n]+?)\*/g, '<em>$1</em>');
         
-        if (portfolioCheckbox) {
-            portfolioCheckbox.addEventListener('change', () => this.updateSettingsSummary());
-        }
+        // Restore **bold** with proper HTML tags
+        html = html.replace(new RegExp(boldPlaceholder + '(\\d+)' + boldPlaceholder, 'g'), (match, index) => {
+            return '<strong>' + boldMatches[parseInt(index)] + '</strong>';
+        });
         
-        if (questionsCheckbox) {
-            questionsCheckbox.addEventListener('change', () => this.updateSettingsSummary());
+        // Convert ### Headers to <h3>
+        html = html.replace(/^### (.+)$/gm, '<h3 style="margin: 10px 0 5px 0; color: #14a800; font-size: 14px;">$1</h3>');
+        
+        // Convert ## Headers to <h2>  
+        html = html.replace(/^## (.+)$/gm, '<h2 style="margin: 15px 0 8px 0; color: #14a800; font-size: 16px;">$1</h2>');
+        
+        // Convert # Headers to <h1>
+        html = html.replace(/^# (.+)$/gm, '<h1 style="margin: 20px 0 10px 0; color: #14a800; font-size: 18px;">$1</h1>');
+        
+        // Convert line breaks to <br> tags, but preserve paragraph spacing
+        html = html.replace(/\n\n/g, '<br><br>');
+        html = html.replace(/\n/g, '<br>');
+        
+        // Convert bullet points (• or - or *) to proper list items with better styling
+        html = html.replace(/^[•\-\*]\s+(.+)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">• $1</div>');
+        
+        // Convert numbered lists (1. 2. etc.)
+        html = html.replace(/^(\d+)\.\s+(.+)$/gm, '<div style="margin: 5px 0; padding-left: 15px;">$1. $2</div>');
+        
+        return html;
+    }
+
+    async copyFormattedText(htmlContent, plainTextFallback) {
+        try {
+            // Wrap HTML content in a proper HTML structure for rich text editors
+            const wrappedHtml = `<div style="font-family: Arial, sans-serif; line-height: 1.5; color: #333;">${htmlContent}</div>`;
+            
+            // Create a ClipboardItem with both HTML and plain text formats
+            const htmlBlob = new Blob([wrappedHtml], { type: 'text/html' });
+            const textBlob = new Blob([plainTextFallback], { type: 'text/plain' });
+            
+            const clipboardItem = new ClipboardItem({
+                'text/html': htmlBlob,
+                'text/plain': textBlob
+            });
+            
+            await navigator.clipboard.write([clipboardItem]);
+        } catch (error) {
+            console.warn('Rich text copy failed, falling back to plain text:', error);
+            // Fallback to plain text copy
+            await navigator.clipboard.writeText(plainTextFallback);
         }
     }
+
+    // Settings listeners function removed as it's no longer needed
     
-    /**
-     * Update the proposal settings summary text
-     */
-    updateSettingsSummary() {
-        const summaryElement = document.getElementById('proposal-settings-summary');
-        if (!summaryElement) return;
-        
-        const tone = document.getElementById('proposal-tone')?.value || 'professional';
-        const length = document.getElementById('proposal-length')?.value || 'medium';
-        const includePortfolio = document.getElementById('include-portfolio')?.checked ?? true;
-        const includeQuestions = document.getElementById('include-questions')?.checked ?? true;
-        
-        // Format tone for display (capitalize first letter)
-        const formattedTone = tone.charAt(0).toUpperCase() + tone.slice(1).toLowerCase();
-        
-        // Build summary text
-        let summaryText = `${formattedTone} tone · ${length.charAt(0).toUpperCase() + length.slice(1)} length`;
-        
-        if (includePortfolio && includeQuestions) {
-            summaryText += ' · With portfolio & questions';
-        } else if (includePortfolio) {
-            summaryText += ' · With portfolio';
-        } else if (includeQuestions) {
-            summaryText += ' · With questions';
-        } else {
-            summaryText += ' · Basic proposal';
-        }
-        
-        // Update the element
-        summaryElement.textContent = summaryText;
-    }
+    // Settings summary function removed as it's no longer needed
     
     copyJobData() {
         const textData = `
