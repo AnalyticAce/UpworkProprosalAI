@@ -1,0 +1,24 @@
+{
+  "name": "upwork-proposal-ai",
+  "version": "1.0.0",
+  "description": "Chrome extension that extracts job details from Upwork job pages to help with proposal writing",
+  "main": "manifest.json",
+  "scripts": {
+    "create-icons": "node scripts/create-icons.js",
+    "build": "./scripts/build.sh",
+    "check": "./scripts/build.sh",
+    "test": "echo 'Load in Chrome for testing: chrome://extensions/'"
+  },
+  "keywords": [
+    "chrome-extension",
+    "upwork",
+    "freelancing",
+    "job-extraction",
+    "proposal-writing"
+  ],
+  "author": "DOSSEH Shalom",
+  "license": "MIT",
+  "devDependencies": {
+    "canvas": "^2.11.2"
+  }
+}
