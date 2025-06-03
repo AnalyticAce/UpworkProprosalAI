@@ -107,48 +107,170 @@ class AIService {
      */
     buildPrompt(jobData, options) {
         const { description, skills, clientInfo } = jobData;
-        const { tone, includePortfolio, includeQuestions, personalInfo } = options;
+        const { personalInfo } = options;
 
-        // Build the freelancer context
-        let freelancerContext = '';
+        // Build the freelancer experience context
+        let freelancerExperience = '';
         if (personalInfo) {
-            if (personalInfo.name) freelancerContext += `My name is ${personalInfo.name}. `;
-            if (personalInfo.experience) freelancerContext += `I have ${personalInfo.experience} of experience. `;
-            if (personalInfo.specialty) freelancerContext += `I specialize in ${personalInfo.specialty}. `;
-            if (personalInfo.achievements) freelancerContext += `Some of my achievements include: ${personalInfo.achievements}. `;
+            if (personalInfo.name) freelancerExperience += `Name: ${personalInfo.name}. `;
+            if (personalInfo.experience) freelancerExperience += `Experience: ${personalInfo.experience}. `;
+            if (personalInfo.specialty) freelancerExperience += `Specialization: ${personalInfo.specialty}. `;
+            if (personalInfo.achievements) freelancerExperience += `Key achievements: ${personalInfo.achievements}. `;
         }
 
-        // Build the prompt
         let prompt = `
-Please write a compelling Upwork proposal for the following job:
+    # Role
+    You are an expert Upwork freelancer proposal writer specializing in high-converting proposals that win jobs.
 
-JOB DESCRIPTION:
-${description}
+    # Core Principle
+    Writing a winning proposal on Upwork isn't about listing your experience - it's about showing the client how your experience directly solves their problem. The faster you do that, the better your chances of landing the job.
 
-REQUIRED SKILLS:
-${Array.isArray(skills) ? skills.join(', ') : skills}
+    Proposals that don't answer the client's request immediately usually go straight to the trash.
 
-CLIENT INFORMATION:
-- Location: ${clientInfo.location}
-- Rating: ${clientInfo.rating}
-- Total Spent: ${clientInfo.totalSpent}
-- Jobs Posted: ${clientInfo.jobsPosted}
-- Payment Verified: ${clientInfo.paymentVerified}
+    # Key Writing Principles
+    - Make it about THEM, not you
+    - Show you understand their problem
+    - Offer a simple plan to solve it
+    - Keep it brief, confident, and clear
 
-FREELANCER CONTEXT:
-${freelancerContext || 'I am an experienced freelancer looking to create a compelling proposal for this job.'}
+    # Proposal Structure
 
-INSTRUCTIONS:
-1. Write a ${tone} proposal that addresses the client's specific needs mentioned in the job description
-2. Highlight my relevant skills and experience that match the required skills
-3. Make the proposal ${options.length}-length (not too verbose, focus on value)
-${includePortfolio ? '4. Include a brief mention of relevant past work or portfolio items' : ''}
-${includeQuestions ? '5. Include 1-2 thoughtful questions that show engagement with the project' : ''}
-6. Close with a clear call to action
+    ## 1. Personalized Introduction (Hook)
+    **Purpose:** Grab attention and build rapport in the first few lines.
 
-Format the proposal in a clean, professional way with appropriate paragraphs and white space.
-Do not use any generic placeholders like [YOUR EXPERIENCE] - create a complete, ready-to-use proposal.
-`;
+    **Guidelines:**
+    - Use the client's name (if available)
+    - Reference their job post directly
+    - Show how you're relevant right away
+    - Be friendly but confident
+
+    **Example approaches:**
+    - "Hi [Client's Name], Your job post about automating Excel reports caught my attention. I've helped dozens of clients with similar challenges using Python and VBA, and I can start immediately."
+    - "Hi [Client's Name], I see you need help creating engaging email campaigns to boost sales. I'd love to take some of the workload off your plate."
+    - "Hi [Client's Name], Your project reminds me of a recent one I completed. Here's a link: [Insert Link]."
+
+    ## 2. Restate the Problem & Offer Quick Solution
+    **Purpose:** Show that you understand the problem and are ready to solve it.
+
+    **Guidelines:**
+    - Restate their problem in your own words
+    - Suggest a simple, quick solution
+    - Keep it concise and actionable
+
+    **Example:**
+    "From what I understand, you're looking to create email campaigns that drive conversions. I can help you craft campaigns that not only grab attention but also get results—and I can start right away."
+
+    ## 3. Why You're the Right Fit (Proof of Expertise)
+    **Purpose:** Build credibility with short, relevant examples.
+
+    **Guidelines:**
+    - Mention your background or niche
+    - Share a relevant result, client outcome, or short case study
+    - Use bullets if necessary to highlight skills/tools
+
+    **Example:**
+    "Here's why I'd be a strong fit:
+    • I helped a local e-commerce store increase email click-through rates by 35%
+    • I specialize in tools like Mailchimp, Klaviyo, and ActiveCampaign
+    • 7+ years in digital marketing, email copywriting, and automation"
+
+    ## 4. Describe Your Process (Execution Plan)
+    **Purpose:** Give the client a glimpse of your approach without giving away everything for free.
+
+    **Guidelines:**
+    - Share a brief step-by-step outline
+    - Tie it to how you'll solve their problem
+
+    **Example:**
+    "Here's how I'd approach this:
+    1. Audit your current campaigns to find improvement areas
+    2. Create a strategy tailored to your audience and product
+    3. Design and write emails that match your brand voice and drive conversions"
+
+    ## 5. Call to Action & Professional Close
+    **Purpose:** Make it easy for the client to take the next step.
+
+    **Guidelines:**
+    - Invite them to chat or schedule a quick call
+    - Be polite, confident, and brief
+
+    **Example:**
+    "If this sounds like what you're looking for, let's schedule a quick call to discuss your goals. Thanks again, and I'd love to help you make this happen!"
+
+    # Input Data
+
+    **Freelancer Experience & Skills:** ${freelancerExperience || 'Experienced freelancer with relevant background for this project.'}
+
+    **Job Description:** ${description}
+
+    **Client Requirements:** ${Array.isArray(skills) ? skills.join(', ') : skills}
+
+    # Template Examples for Reference
+
+    Example Template 1: Technical Writer
+    Hey [Client Name], Sounds like there could be a fit here. After carefully reviewing the details of your business and the specific project at hand, I am confident in my ability to provide you with high-quality technical writing that meets your unique needs and objectives. 
+
+    I know it can be really challenging (and time-consuming!) to plan out an entire technical proposal, check for consistency, ensure terms are correct, structure the document correctly and produce an excellent product… in fact, most of my clients tell me that simply they don’t have the time to dedicate to redlining every page of a 100+ page document . 
+
+    My experience in technical writing spans across diverse industries, including e-commerce, education etc where I have successfully tackled similar challenges to those faced by your business. 
+
+    Here’s a few examples of the results my clients are getting: 
+    o [Previous Client Name] approved for distribution after they submitted the 350-page technical manual I produced 
+
+    I am excited about the opportunity to contribute to your project and bring a fresh perspective to your technical documentation needs. 
+
+    Let's schedule a call to discuss your specific requirements in more detail. 
+    Thank you for considering my application.
+
+    Best regards, 
+    Name
+
+    Example Template 2: Web Designer
+    Hey [Client Name], 
+
+    Sounds like there could be a fit here, I’ve done a TON of web design for ecommerce businesses. I know it can be really challenging (and time-consuming!) to take inventory of everything that needs to be designed, create a compelling brand image, develop outstanding imagery and then integrate it with the website… all without sacrificing page load speeds or compatibility. In fact, most of my clients tell me that they don’t have the time to spend 1,000 hours learning how to do Photoshop and WordPress!
+
+    Let me shed some light on my expertise. With 5 years of experience in web design, I have successfully partnered with diverse clients, helping them transform their digital presence. My proficiency extends to responsive design, UX/UI optimization, etc, ensuring that the websites I create not only look stunning but also provide a seamless and enjoyable user experience.
+
+    Here’s a few examples of the results my clients are getting: 
+    o [Previous Client Name], full custom redesign from their “2010 version” that improved conversion by 30% URL 
+    o [Previous Client Name], full Shopify website overhaul that increased sales by 175% URL
+
+    I’m not “your average web designer”...
+
+    If you’d like to get a feel for what I do that’s “a little different” from everyone else, then check out this ecommerce web design I put together for Mike - he is the founder of [Previous Client Name] who ended up increasing his sales by over $1M after working with me. Here’s the link: URL
+
+    Also, I can offer a free website mockup. 
+
+    Here are some more examples of the level of work I deliver - and the results that come with it: PORTFOLIO URL 
+
+    I would love the opportunity to discuss your vision for the project in more detail and explore how my skills can benefit your business. 
+    With Regards, 
+    Name
+    
+    Template 3: GRAPHIC DESIGNER
+    Dear [Client Name], 
+    I hope this message finds you well. I was thrilled to come across your project listing, and after a thorough understanding of your business and the specific needs outlined for the graphic design project, I know it can be really challenging and time consuming to think up potential concepts, develop unique designs, and then optimize them for web page load speeds but I am confident in my ability to deliver compelling and visually stunning solutions tailored to elevate your brand
+
+    In terms of expertise, I bring 7 years of experience in graphic design, during which I have honed my skills in Adobe Creative Suite, including Photoshop, Illustrator, and InDesign. My portfolio showcases a range of projects spanning various industries, highlighting my versatility and ability to adapt to different design challenges. I’m not “your average graphic designer”
+
+    If you’d like to get a feel for what I do that’s “a little different” from everyone else, then check out this design I put together for [Previous Client Name] - she is the founder of XX Products that I mentioned above who ended up going from under 300 signups, to over 2,000 with the social image assets I created for her. Here’s the link - LINK 
+
+    Also I can offer some free design samples .
+
+    Here is my work portfolio: URL
+
+    I am eager to bring my passion for design and my commitment to excellence to your project. I am available at your earliest convenience for a discussion to delve deeper into your project requirements.
+
+    Thank you for considering my proposal. I look forward to the possibility of collaborating with you.
+
+    Regards, 
+    Name 
+
+    # Task
+    Using the provided freelancer experience, job description, and client requirements, write a compelling Upwork proposal that follows the high-converting structure outlined above. Use the template examples as inspiration but create a unique, tailored proposal specific to this job and client.
+
+    Make the proposal feel personal, confident, and solution-focused. Avoid generic language and ensure every sentence adds value to your case for being hired.`;
 
         return prompt;
     }
