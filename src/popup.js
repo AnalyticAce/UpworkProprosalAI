@@ -15,4 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
             statusElement.className = 'status-inactive';
         }
     });
+    
+    // Add event listener for settings button
+    const settingsBtn = document.getElementById('open-settings');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', function() {
+            // Open the options page
+            if (chrome.runtime.openOptionsPage) {
+                chrome.runtime.openOptionsPage();
+            } else {
+                // Fallback for browsers that don't support openOptionsPage
+                window.open(chrome.runtime.getURL('src/options.html'));
+            }
+        });
+    }
 });

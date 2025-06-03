@@ -1,24 +1,26 @@
 {
-  "name": "upwork-proposal-ai",
+  "name": "upworkproprosalai",
   "version": "1.0.0",
-  "description": "Chrome extension that extracts job details from Upwork job pages to help with proposal writing",
-  "main": "manifest.json",
-  "scripts": {
-    "create-icons": "node scripts/create-icons.js",
-    "build": "./scripts/build.sh",
-    "check": "./scripts/build.sh",
-    "test": "echo 'Load in Chrome for testing: chrome://extensions/'"
+  "description": "A Chrome extension that automatically extracts job details from Upwork job pages to help freelancers create better proposals.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
   },
-  "keywords": [
-    "chrome-extension",
-    "upwork",
-    "freelancing",
-    "job-extraction",
-    "proposal-writing"
-  ],
-  "author": "DOSSEH Shalom",
-  "license": "MIT",
-  "devDependencies": {
-    "canvas": "^2.11.2"
-  }
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "mkdir -p dist && cp -r src assets manifest.json dist/",
+    "zip": "npm run build && cd dist && zip -r ../upwork-proposal-ai.zip *"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnalyticAce/UpworkProprosalAI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AnalyticAce/UpworkProprosalAI/issues"
+  },
+  "homepage": "https://github.com/AnalyticAce/UpworkProprosalAI#readme"
 }

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upwork Proposal AI - Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        h1 {
+            color: #14a800;
+            border-bottom: 2px solid #14a800;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        button {
+            background-color: #14a800;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #0f8e00;
+        }
+        
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .note {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+        
+        .api-key-input {
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upwork Proposal AI Settings</h1>
+    
+    <div class="card">
+        <h2>OpenAI API Configuration</h2>
+        <p>To generate proposals, the extension needs an OpenAI API key. Your key is stored locally and only used for generating proposals.</p>
+        <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffeeba;">
+            <strong>Security Notice:</strong> Your API key is stored securely and masked for your privacy. Never share your API key with anyone.
+        </div>
+        
+        <div class="form-group">
+            <label for="api-key">OpenAI API Key</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="password" id="api-key" class="api-key-input" placeholder="sk-..." autocomplete="off" style="flex: 1;">
+                <button type="button" id="toggle-key-visibility" style="background: #f0f0f0; color: #333; padding: 8px; width: 80px;">Show</button>
+            </div>
+            <div id="masked-key-display" style="font-family: monospace; margin-top: 5px; font-size: 14px; color: #666;"></div>
+            <p class="note">Get your API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">OpenAI's website</a></p>
+        </div>
+        
+        <div class="form-group">
+            <label for="model">AI Model</label>
+            <select id="model">
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster, cheaper)</option>
+                <option value="gpt-4">GPT-4 (Better quality, more expensive)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Freelancer Profile</h2>
+        <p>Provide details about your experience and skills. This information will be used to personalize the proposals.</p>
+        
+        <div class="form-group">
+            <label for="experience">Experience</label>
+            <input type="text" id="experience" placeholder="e.g., 5+ years in web development">
+        </div>
+        
+        <div class="form-group">
+            <label for="specialty">Specialty/Skills</label>
+            <textarea id="specialty" placeholder="e.g., Full-stack development with React, Node.js, and MongoDB"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="achievements">Notable Achievements/Portfolio</label>
+            <textarea id="achievements" placeholder="e.g., Built an e-commerce platform that increased sales by 30%"></textarea>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <button id="save-settings">Save Settings</button>
+    </div>
+    
+    <div id="status-message" class="status-message hidden"></div>
+    
+    <script src="options.js"></script>
+</body>
+</html>

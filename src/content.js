@@ -4,6 +4,7 @@ class UpworkJobExtractor {
         this.jobData = {};
         this.extractJobData();
         this.createUI();
+        this.setupProposalGeneration(); // Add this line to initialize the proposal generation functionality
     }
 
     extractJobData() {
@@ -80,8 +81,8 @@ class UpworkJobExtractor {
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                width: 380px;
-                max-height: 70vh;
+                width: 400px;
+                max-height: 85vh;
                 background: white;
                 border: 2px solid #14a800;
                 border-radius: 12px;
@@ -181,9 +182,266 @@ class UpworkJobExtractor {
                     ${this.jobData.description}
                 </div>
             </details>
+            
+            <div style="margin-top: 15px;">
+                <details style="margin-bottom: 10px;">
+                    <summary style="color: #1976d2; font-weight: bold; cursor: pointer; font-size: 13px;">⚙️ AI Proposal Settings</summary>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; margin-top: 8px; border: 1px solid #e0e0e0;">
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #333;">Tone:</label>
+                            <select id="proposal-tone" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 12px;">
+                                <option value="professional">Professional</option>
+                                <option value="conversational">Conversational</option>
+                                <option value="enthusiastic">Enthusiastic</option>
+                                <option value="formal">Formal</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #333;">Length:</label>
+                            <select id="proposal-length" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ddd; font-size: 12px;">
+                                <option value="short">Short (250-350 words)</option>
+                                <option value="medium" selected>Medium (350-500 words)</option>
+                                <option value="long">Long (500-700 words)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: flex; align-items: center; font-size: 12px; color: #333;">
+                                <input type="checkbox" id="include-portfolio" checked style="margin-right: 5px;">
+                                Include portfolio/past work
+                            </label>
+                        </div>
+                        
+                        <div style="margin-bottom: 8px;">
+                            <label style="display: flex; align-items: center; font-size: 12px; color: #333;">
+                                <input type="checkbox" id="include-questions" checked style="margin-right: 5px;">
+                                Include thoughtful questions
+                            </label>
+                        </div>
+                    </div>
+                </details>
+                
+                <button id="generate-proposal-btn" style="
+                    background: #1976d2;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    width: 100%;
+                    font-weight: bold;
+                ">✨ Generate AI Proposal</button>
+                
+                <div id="proposal-settings-summary" style="
+                    font-size: 11px;
+                    text-align: center;
+                    margin-top: 5px;
+                    color: #666;
+                ">Professional tone · Medium length · With portfolio & questions</div>
+            </div>
+            
+            <div id="proposal-container" style="display: none; margin-top: 15px;">
+                <strong style="color: #14a800; display: block; margin-bottom: 5px;">✍️ Generated Proposal:</strong>
+                <div id="proposal-content" style="
+                    background: #f8f9fa;
+                    padding: 10px;
+                    border-radius: 4px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                    font-size: 13px;
+                    line-height: 1.4;
+                    color: #333 !important;
+                    border: 1px solid #e0e0e0;
+                    white-space: pre-wrap;
+                ">
+                    <div id="proposal-loader" style="text-align: center; padding: 20px; display: none;">
+                        Generating proposal... <br>
+                        <div style="display: inline-block; margin-top: 10px; width: 20px; height: 20px; border: 3px solid rgba(20, 168, 0, 0.3); border-radius: 50%; border-top-color: #14a800; animation: spin 1s ease-in-out infinite;"></div>
+                        <style>
+                            @keyframes spin { to { transform: rotate(360deg); } }
+                        </style>
+                    </div>
+                    <div id="proposal-text"></div>
+                </div>
+                <button id="copy-proposal" style="
+                    background: #14a800;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    width: 100%;
+                    font-weight: bold;
+                    margin-top: 10px;
+                ">📋 Copy Proposal</button>
+                <p style="
+                    font-size: 11px;
+                    text-align: center;
+                    margin-top: 8px;
+                    color: #666;
+                ">For more options, click on <strong>⚙️ AI Proposal Settings</strong> above</p>
+            </div>
         `;
     }
-
+    
+    setupProposalGeneration() {
+        const generateBtn = document.getElementById('generate-proposal-btn');
+        if (!generateBtn) return;
+        
+        // Add listeners to update settings summary when options change
+        this.setupSettingsListeners();
+        
+        generateBtn.addEventListener('click', async () => {
+            // Show container and loader
+            const container = document.getElementById('proposal-container');
+            const loader = document.getElementById('proposal-loader');
+            const textContainer = document.getElementById('proposal-text');
+            
+            if (!container || !loader || !textContainer) return;
+            
+            container.style.display = 'block';
+            loader.style.display = 'block';
+            textContainer.textContent = '';
+            
+            try {
+                // Get user selected settings from the UI
+                const tone = document.getElementById('proposal-tone')?.value || 'professional';
+                const length = document.getElementById('proposal-length')?.value || 'medium';
+                const includePortfolio = document.getElementById('include-portfolio')?.checked ?? true;
+                const includeQuestions = document.getElementById('include-questions')?.checked ?? true;
+                
+                // Get freelancer profile from storage via background script
+                const profileResponse = await new Promise(resolve => {
+                    browserAPI.runtime.sendMessage({
+                        action: 'getFreelancerProfile'
+                    }, resolve);
+                });
+                
+                // Extract profile data from response or use defaults
+                const profileData = profileResponse.success ? profileResponse.profileData : {
+                    freelancerExperience: '5+ years',
+                    freelancerSpecialty: 'full-stack development',
+                    freelancerAchievements: ''
+                };
+                
+                // Generate proposal using AI service with user-selected options
+                const response = await browserAPI.runtime.sendMessage({
+                    action: 'generateProposal',
+                    jobData: this.jobData,
+                    options: {
+                        tone: tone,
+                        length: length,
+                        includePortfolio: includePortfolio,
+                        includeQuestions: includeQuestions,
+                        personalInfo: {
+                            experience: profileData.freelancerExperience || '5+ years',
+                            specialty: profileData.freelancerSpecialty || 'full-stack development',
+                            achievements: profileData.freelancerAchievements || ''
+                        }
+                    }
+                });
+                
+                // Hide loader and display proposal
+                loader.style.display = 'none';
+                
+                if (response.error) {
+                    textContainer.textContent = `Error: ${response.error}\n\nPlease make sure the OpenAI API key is correctly set up in the extension.`;
+                    textContainer.style.color = 'red';
+                } else {
+                    textContainer.textContent = response.proposal;
+                    textContainer.style.color = '#333';
+                    
+                    // Setup copy button
+                    const copyBtn = document.getElementById('copy-proposal');
+                    if (copyBtn) {
+                        copyBtn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(response.proposal).then(() => {
+                                const originalText = copyBtn.textContent;
+                                copyBtn.textContent = '✅ Copied!';
+                                copyBtn.style.background = '#28a745';
+                                
+                                setTimeout(() => {
+                                    copyBtn.textContent = originalText;
+                                    copyBtn.style.background = '#14a800';
+                                }, 2000);
+                            }).catch(err => {
+                                console.error('Failed to copy proposal: ', err);
+                            });
+                        });
+                    }
+                }
+            } catch (error) {
+                loader.style.display = 'none';
+                textContainer.textContent = `Error generating proposal: ${error.message}\n\nPlease make sure you have set up the OpenAI API key in the extension settings.`;
+                textContainer.style.color = 'red';
+                console.error('Error generating proposal:', error);
+            }
+        });
+    }
+    
+    /**
+     * Setup event listeners for proposal settings controls
+     */
+    setupSettingsListeners() {
+        const toneSelect = document.getElementById('proposal-tone');
+        const lengthSelect = document.getElementById('proposal-length');
+        const portfolioCheckbox = document.getElementById('include-portfolio');
+        const questionsCheckbox = document.getElementById('include-questions');
+        
+        // First update with current values
+        this.updateSettingsSummary();
+        
+        // Add listeners to each control
+        if (toneSelect) {
+            toneSelect.addEventListener('change', () => this.updateSettingsSummary());
+        }
+        
+        if (lengthSelect) {
+            lengthSelect.addEventListener('change', () => this.updateSettingsSummary());
+        }
+        
+        if (portfolioCheckbox) {
+            portfolioCheckbox.addEventListener('change', () => this.updateSettingsSummary());
+        }
+        
+        if (questionsCheckbox) {
+            questionsCheckbox.addEventListener('change', () => this.updateSettingsSummary());
+        }
+    }
+    
+    /**
+     * Update the proposal settings summary text
+     */
+    updateSettingsSummary() {
+        const summaryElement = document.getElementById('proposal-settings-summary');
+        if (!summaryElement) return;
+        
+        const tone = document.getElementById('proposal-tone')?.value || 'professional';
+        const length = document.getElementById('proposal-length')?.value || 'medium';
+        const includePortfolio = document.getElementById('include-portfolio')?.checked ?? true;
+        const includeQuestions = document.getElementById('include-questions')?.checked ?? true;
+        
+        // Format tone for display (capitalize first letter)
+        const formattedTone = tone.charAt(0).toUpperCase() + tone.slice(1).toLowerCase();
+        
+        // Build summary text
+        let summaryText = `${formattedTone} tone · ${length.charAt(0).toUpperCase() + length.slice(1)} length`;
+        
+        if (includePortfolio && includeQuestions) {
+            summaryText += ' · With portfolio & questions';
+        } else if (includePortfolio) {
+            summaryText += ' · With portfolio';
+        } else if (includeQuestions) {
+            summaryText += ' · With questions';
+        } else {
+            summaryText += ' · Basic proposal';
+        }
+        
+        // Update the element
+        summaryElement.textContent = summaryText;
+    }
+    
     copyJobData() {
         const textData = `
 UPWORK JOB DETAILS
@@ -223,6 +481,9 @@ Generated by Upwork Proposal AI Extension
         });
     }
 }
+
+// browserAPI is already defined in browser-polyfill.js which is loaded first
+// No need to redefine it here
 
 // Initialize the extractor when the page loads
 function initializeExtractor() {

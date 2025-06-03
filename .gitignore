@@ -38,3 +38,16 @@ key.pem
 # Test coverage
 coverage/
 *.coverage
+
+# Environment variables and secrets
+.env
+.env.*
+.env.local
+.env.development
+.env.test
+.env.production
+
+# API keys and sensitive information
+**/*/api-keys.json
+*apikey*
+*api_key*

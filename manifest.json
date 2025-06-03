@@ -7,10 +7,13 @@
         "activeTab",
         "storage"
     ],
+    "host_permissions": [
+        "https://api.openai.com/*"
+    ],
     "content_scripts": [
         {
             "matches": ["https://www.upwork.com/jobs/*"],
-            "js": ["src/content.js"],
+            "js": ["src/browser-polyfill.js", "src/content.js"],
             "run_at": "document_end"
         }
     ],
@@ -27,5 +30,18 @@
         "16": "assets/icons/icon16.png",
         "48": "assets/icons/icon48.png",
         "128": "assets/icons/icon128.png"
-    }
+    },
+    "background": {
+        "service_worker": "src/background.js"
+    },
+    "options_ui": {
+        "page": "src/options.html",
+        "open_in_tab": true
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["src/*.js"],
+            "matches": ["https://www.upwork.com/*"]
+        }
+    ]
 }
