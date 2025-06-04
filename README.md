@@ -1,6 +1,6 @@
-# Upwork Proposal AI - Job Data Extractor
+# Upwork Proposal AI
 
-A Chrome extension that automatically extracts job details from Upwork job pages to help freelancers create better proposals.
+An AI-powered Chrome extension that generates personalized proposals for Upwork job postings using advanced artificial intelligence.
 
 ## 📁 Project Structure
 
@@ -9,62 +9,55 @@ UpworkProprosalAi/
 ├── src/                    # Source code
 │   ├── ai-service.js      # OpenAI API integration for proposal generation
 │   ├── background.js      # Background script for API communication
-│   ├── content.js         # Content script for job extraction
+│   ├── content.js         # Content script for job data extraction
 │   ├── popup.html         # Extension popup interface
-│   ├── popup.js           # Popup functionality script
-│   ├── options.html       # Settings page
+│   ├── popup.js           # Popup functionality and AI controls
+│   ├── options.html       # Settings and API configuration page
 │   └── options.js         # Settings functionality script
 ├── assets/                # Static assets
 │   └── icons/            # Extension icons (16px, 48px, 128px)
 ├── docs/                  # Documentation
-│   ├── README.md         # Detailed project documentation
-│   ├── INSTALLATION.md   # Installation guide
-│   └── COMPLETION_SUMMARY.md # Project completion status
 ├── tests/                 # Test files and samples
-│   └── sample-job-page.html # Sample Upwork page for testing
 ├── scripts/               # Build and utility scripts
-│   └── create-icons.js   # Icon generation script
 ├── manifest.json          # Chrome extension manifest
-├── .env                   # Environment variables (for development only)
-└── .gitignore            # Git ignore rules
+└── package.json          # Project dependencies
 ```
 
 ## 🚀 Quick Start
 
-1. **Read the Documentation**: Check `docs/README.md` for detailed information
-2. **Installation**: Follow the guide in `docs/INSTALLATION.md`
-3. **Status**: See `docs/COMPLETION_SUMMARY.md` for current completion status
+1. Install the extension in Chrome
+2. Get your OpenAI API key from [OpenAI's platform](https://platform.openai.com/account/api-keys)
+3. Configure your API key and freelancer profile in the extension options
+4. Navigate to any Upwork job posting
+5. Click the extension icon to generate AI-powered proposals
 
 ## ✨ Features
 
-- 📝 Auto-extract job skills, client info, and descriptions
-- 👤 Display client insights and ratings
-- 📋 One-click copy to clipboard
-- 🎨 Clean, non-intrusive UI
-- ⚡ Instant extraction on Upwork job pages
-- ✨ AI-powered proposal generation using OpenAI GPT-3.5/4
-- 🔧 Customizable freelancer profile for personalized proposals
-- 🔒 Secure API key storage in browser
+- 🤖 **AI-Powered Proposals**: Generate personalized proposals using OpenAI GPT
+- 📝 **Smart Job Analysis**: Automatically analyzes job requirements and client preferences
+- 👤 **Freelancer Profiles**: Customize your skills and experience for better proposals
+- 📋 **One-Click Generation**: Generate professional proposals with a single click
+- 🎨 **Clean Interface**: Simple, non-intrusive browser extension design
+- 🔒 **Secure**: Your API key is stored securely in your browser
+- ⚡ **Fast**: Instant proposal generation on any Upwork job page
 
-## 📖 Documentation
+## 🤖 Setup
 
-For complete documentation, installation instructions, and usage guides, please see the `docs/` directory:
-
-- [📖 Full Documentation](docs/README.md)
-- [🛠️ Installation Guide](docs/INSTALLATION.md)
-- [✅ Completion Status](docs/COMPLETION_SUMMARY.md)
-
-## 🤖 OpenAI Integration Setup
-
-To use the AI proposal generation feature:
+### OpenAI API Configuration
 
 1. Get your API key from [OpenAI's platform](https://platform.openai.com/account/api-keys)
-2. Open the extension options page (right-click the extension icon > Options)
-3. Enter your API key in the settings page
-4. Configure your freelancer profile details
-5. Save your settings
+2. Right-click the extension icon and select "Options"
+3. Enter your API key and configure your freelancer profile
+4. Save your settings and start generating proposals!
 
-**Note**: Your OpenAI API key is stored securely in your browser's local storage and is only used for generating proposals.
+### Usage
+
+1. Navigate to any Upwork job posting
+2. Click the Upwork Proposal AI extension icon
+3. Review the generated proposal
+4. Copy and customize as needed
+
+**Note**: Your API key is stored locally and securely in your browser.
 
 ---
 
