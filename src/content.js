@@ -73,167 +73,537 @@ class UpworkJobExtractor {
     }
 
     createUI() {
+        // Inject modern styles first
+        this.injectStyles();
+        
         // Create floating panel
         const panel = document.createElement('div');
         panel.id = 'upwork-job-extractor';
+        panel.className = 'upwork-ai-panel';
+        
         panel.innerHTML = `
-            <div style="
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                width: 400px;
-                max-height: 85vh;
-                background: white;
-                border: 2px solid #14a800;
-                border-radius: 12px;
-                box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-                z-index: 10000;
-                font-family: Arial, sans-serif;
-                overflow: hidden;
-            ">
-                <div style="
-                    background: #14a800;
-                    color: white;
-                    padding: 15px;
-                    font-weight: bold;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                ">
-                    <span>📋 Skills, Client & Description</span>
-                    <button id="close-extractor" style="
-                        background: none;
-                        border: none;
-                        color: white;
-                        font-size: 18px;
-                        cursor: pointer;
-                        padding: 0;
-                        width: 24px;
-                        height: 24px;
-                    ">×</button>
+            <div class="upwork-ai-container">
+                <div class="upwork-ai-header">
+                    <div class="upwork-ai-header-content">
+                        <div class="upwork-ai-logo">
+                            <span class="upwork-ai-icon">💼</span>
+                            <span class="upwork-ai-title">Job Data Extractor</span>
+                        </div>
+                        <button id="close-extractor" class="upwork-ai-close-btn" aria-label="Close">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                                <path d="M18.3 5.71a.996.996 0 0 0-1.41 0L12 10.59 7.11 5.7A.996.996 0 1 0 5.7 7.11L10.59 12 5.7 16.89a.996.996 0 1 0 1.41 1.41L12 13.41l4.89 4.89a.996.996 0 0 0 1.41-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div style="
-                    padding: 15px;
-                    max-height: 50vh;
-                    overflow-y: auto;
-                    font-size: 13px;
-                    line-height: 1.4;
-                    color: #333 !important;
-                    background: white;
-                ">
+                
+                <div class="upwork-ai-content">
                     ${this.generateJobDataHTML()}
                 </div>
-                <div style="
-                    padding: 15px;
-                    background: #f8f9fa;
-                    border-top: 1px solid #e9ecef;
-                ">
-                    <button id="copy-job-data" style="
-                        background: #14a800;
-                        color: white;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        width: 100%;
-                        font-weight: bold;
-                    ">📋 Copy Extracted Data</button>
+                
+                <div class="upwork-ai-footer">
+                    <button id="copy-job-data" class="upwork-ai-btn upwork-ai-btn-primary">
+                        <span class="upwork-ai-btn-icon">📋</span>
+                        Copy Extracted Data
+                    </button>
                 </div>
             </div>
         `;
         
         document.body.appendChild(panel);
         
-        // Add event listeners
-        document.getElementById('close-extractor').addEventListener('click', () => {
-            panel.remove();
+        // Add event listeners with modern interactions
+        this.setupEventListeners(panel);
+        
+        // Enhance copy proposal feedback
+        setTimeout(() => this.enhanceCopyProposalFeedback(), 100);
+    }
+    
+    enhanceCopyProposalFeedback() {
+        // This method enhances the copy feedback experience
+        // It can be used to add additional visual feedback when copying content
+        console.log('Copy proposal feedback enhanced');
+    }
+    
+    injectStyles() {
+        // Check if styles are already injected
+        if (document.getElementById('upwork-ai-styles')) return;
+        
+        const styles = document.createElement('style');
+        styles.id = 'upwork-ai-styles';
+        styles.textContent = `
+            /* Upwork AI Extension Styles */
+            .upwork-ai-panel {
+                --primary: #14a800;
+                --primary-dark: #0d7d00;
+                --primary-light: #e6f7e3;
+                --white: #ffffff;
+                --gray-50: #f9fafb;
+                --gray-100: #f3f4f6;
+                --gray-200: #e5e7eb;
+                --gray-300: #d1d5db;
+                --gray-700: #374151;
+                --gray-800: #1f2937;
+                --gray-900: #111827;
+                --success: #38b000;
+                --warning: #f77f00;
+                --danger: #d62828;
+                --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+                --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                
+                position: fixed !important;
+                top: 20px !important;
+                right: 20px !important;
+                width: 420px !important;
+                max-height: 85vh !important;
+                z-index: 2147483647 !important;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+                font-size: 14px !important;
+                line-height: 1.5 !important;
+                color: var(--gray-800) !important;
+                animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            .upwork-ai-container {
+                background: var(--white) !important;
+                border-radius: 16px !important;
+                box-shadow: var(--shadow-xl) !important;
+                overflow: hidden !important;
+                border: 1px solid var(--gray-200) !important;
+                backdrop-filter: blur(8px) !important;
+            }
+            
+            .upwork-ai-header {
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+                padding: 20px !important;
+                position: relative !important;
+            }
+            
+            .upwork-ai-header::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent) !important;
+                pointer-events: none !important;
+            }
+            
+            .upwork-ai-header-content {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                position: relative !important;
+                z-index: 1 !important;
+            }
+            
+            .upwork-ai-logo {
+                display: flex !important;
+                align-items: center !important;
+                gap: 12px !important;
+            }
+            
+            .upwork-ai-icon {
+                font-size: 24px !important;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)) !important;
+            }
+            
+            .upwork-ai-title {
+                color: var(--white) !important;
+                font-weight: 600 !important;
+                font-size: 18px !important;
+                text-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;
+            }
+            
+            .upwork-ai-close-btn {
+                background: rgba(255, 255, 255, 0.2) !important;
+                border: none !important;
+                border-radius: 8px !important;
+                width: 32px !important;
+                height: 32px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                color: var(--white) !important;
+                transition: var(--transition) !important;
+                backdrop-filter: blur(4px) !important;
+            }
+            
+            .upwork-ai-close-btn:hover {
+                background: rgba(255, 255, 255, 0.3) !important;
+                transform: scale(1.05) !important;
+            }
+            
+            .upwork-ai-content {
+                padding: 24px !important;
+                max-height: 50vh !important;
+                overflow-y: auto !important;
+                background: var(--white) !important;
+            }
+            
+            .upwork-ai-content::-webkit-scrollbar {
+                width: 6px !important;
+            }
+            
+            .upwork-ai-content::-webkit-scrollbar-track {
+                background: var(--gray-100) !important;
+                border-radius: 3px !important;
+            }
+            
+            .upwork-ai-content::-webkit-scrollbar-thumb {
+                background: var(--gray-300) !important;
+                border-radius: 3px !important;
+            }
+            
+            .upwork-ai-content::-webkit-scrollbar-thumb:hover {
+                background: var(--gray-400) !important;
+            }
+            
+            .upwork-ai-footer {
+                padding: 20px 24px !important;
+                background: var(--gray-50) !important;
+                border-top: 1px solid var(--gray-200) !important;
+            }
+            
+            .upwork-ai-btn {
+                width: 100% !important;
+                padding: 12px 20px !important;
+                border: none !important;
+                border-radius: 10px !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
+                cursor: pointer !important;
+                transition: var(--transition) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+                position: relative !important;
+                overflow: hidden !important;
+            }
+            
+            .upwork-ai-btn::before {
+                content: '' !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: -100% !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent) !important;
+                transition: left 0.5s !important;
+            }
+            
+            .upwork-ai-btn:hover::before {
+                left: 100% !important;
+            }
+            
+            .upwork-ai-btn-primary {
+                background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+                color: var(--white) !important;
+                box-shadow: var(--shadow-md) !important;
+            }
+            
+            .upwork-ai-btn-primary:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: var(--shadow-lg) !important;
+            }
+            
+            .upwork-ai-btn-primary:active {
+                transform: translateY(0) !important;
+            }
+            
+            .upwork-ai-btn-icon {
+                font-size: 16px !important;
+            }
+            
+            /* Section styles */
+            .upwork-ai-section {
+                margin-bottom: 24px !important;
+            }
+            
+            .upwork-ai-section:last-child {
+                margin-bottom: 0 !important;
+            }
+            
+            .upwork-ai-section-title {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                font-weight: 600 !important;
+                font-size: 16px !important;
+                color: var(--primary) !important;
+                margin-bottom: 12px !important;
+            }
+            
+            .upwork-ai-card {
+                background: var(--gray-50) !important;
+                border: 1px solid var(--gray-200) !important;
+                border-radius: 12px !important;
+                padding: 16px !important;
+                transition: var(--transition) !important;
+            }
+            
+            .upwork-ai-card:hover {
+                border-color: var(--gray-300) !important;
+                box-shadow: var(--shadow-sm) !important;
+            }
+            
+            /* Responsive design */
+            @media (max-width: 480px) {
+                .upwork-ai-panel {
+                    left: 10px !important;
+                    right: 10px !important;
+                    width: auto !important;
+                }
+            }
+            
+            /* Additional UI improvements */
+            .upwork-ai-section .upwork-ai-btn:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: var(--shadow-lg) !important;
+            }
+            
+            .upwork-ai-section .upwork-ai-btn:active {
+                transform: translateY(0) !important;
+            }
+            
+            /* Skill tags hover effect */
+            .upwork-ai-card span[style*="background: linear-gradient"]:hover {
+                transform: scale(1.05) !important;
+                transition: transform 0.2s ease !important;
+            }
+            
+            /* Better focus states */
+            .upwork-ai-btn:focus,
+            .upwork-ai-close-btn:focus {
+                outline: 2px solid var(--primary) !important;
+                outline-offset: 2px !important;
+            }
+            
+            /* Smooth scrollbar */
+            .upwork-ai-content {
+                scrollbar-width: thin !important;
+                scrollbar-color: var(--gray-300) var(--gray-100) !important;
+            }
+            
+            /* Loading animation improvements */
+            #proposal-loader {
+                background: linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.5) 50%, transparent 75%) !important;
+                background-size: 200% 200% !important;
+                animation: loadingShimmer 2s infinite !important;
+            }
+            
+            @keyframes loadingShimmer {
+                0% { background-position: -200% -200%; }
+                100% { background-position: 200% 200%; }
+            }
+        `;
+        
+        document.head.appendChild(styles);
+    }
+    
+    setupEventListeners(panel) {
+        const closeBtn = document.getElementById('close-extractor');
+        const copyBtn = document.getElementById('copy-job-data');
+        
+        // Close button with animation
+        closeBtn?.addEventListener('click', () => {
+            panel.style.animation = 'slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            setTimeout(() => panel.remove(), 300);
         });
         
-        document.getElementById('copy-job-data').addEventListener('click', () => {
+        // Copy button with enhanced feedback
+        copyBtn?.addEventListener('click', () => {
             this.copyJobData();
         });
+        
+        // Add slide out animation
+        const slideOutKeyframes = `
+            @keyframes slideOutRight {
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        
+        if (!document.getElementById('upwork-ai-animations')) {
+            const animationStyles = document.createElement('style');
+            animationStyles.id = 'upwork-ai-animations';
+            animationStyles.textContent = slideOutKeyframes;
+            document.head.appendChild(animationStyles);
+        }
     }
 
     generateJobDataHTML() {
         return `
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #14a800; display: block; margin-bottom: 5px;">🛠️ Skills Required:</strong>
-                <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; color: #333 !important; font-size: 13px;">
-                    ${this.jobData.skills.map(skill => 
-                        `<span style="background: #e3f2fd; padding: 4px 8px; border-radius: 4px; margin: 2px; display: inline-block; font-size: 12px; color: #1976d2 !important;">${skill}</span>`
-                    ).join('')}
+            <div class="upwork-ai-section">
+                <div class="upwork-ai-section-title">
+                    <span>🛠️</span>
+                    <span>Skills Required</span>
+                </div>
+                <div class="upwork-ai-card">
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${this.jobData.skills.map(skill => 
+                            `<span style="
+                                background: linear-gradient(135deg, var(--primary-light), #f0f8f0);
+                                color: var(--primary-dark);
+                                padding: 6px 12px;
+                                border-radius: 20px;
+                                font-size: 13px;
+                                font-weight: 500;
+                                border: 1px solid var(--primary);
+                                display: inline-block;
+                            ">${skill}</span>`
+                        ).join('')}
+                    </div>
                 </div>
             </div>
             
-            <div style="margin-bottom: 15px;">
-                <strong style="color: #14a800; display: block; margin-bottom: 5px;">👤 Client Info:</strong>
-                <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; font-size: 13px; color: #333 !important;">
-                    <div style="margin-bottom: 5px; color: #333 !important;"><strong style="color: #333 !important;">Location:</strong> ${this.jobData.clientInfo.location}</div>
-                    <div style="margin-bottom: 5px; color: #333 !important;"><strong style="color: #333 !important;">Rating:</strong> ${this.jobData.clientInfo.rating}</div>
-                    <div style="margin-bottom: 5px; color: #333 !important;"><strong style="color: #333 !important;">Total Spent:</strong> ${this.jobData.clientInfo.totalSpent}</div>
-                    <div style="margin-bottom: 5px; color: #333 !important;"><strong style="color: #333 !important;">Jobs Posted:</strong> ${this.jobData.clientInfo.jobsPosted}</div>
-                    <div style="color: #333 !important;"><strong style="color: #333 !important;">Payment Verified:</strong> ${this.jobData.clientInfo.paymentVerified}</div>
+            <div class="upwork-ai-section">
+                <div class="upwork-ai-section-title">
+                    <span>👤</span>
+                    <span>Client Information</span>
+                </div>
+                <div class="upwork-ai-card">
+                    <div style="display: grid; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; color: var(--gray-700);">Location:</span>
+                            <span style="color: var(--gray-800);">${this.jobData.clientInfo.location}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; color: var(--gray-700);">Rating:</span>
+                            <span style="color: var(--gray-800);">${this.jobData.clientInfo.rating}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; color: var(--gray-700);">Total Spent:</span>
+                            <span style="color: var(--gray-800);">${this.jobData.clientInfo.totalSpent}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; color: var(--gray-700);">Jobs Posted:</span>
+                            <span style="color: var(--gray-800);">${this.jobData.clientInfo.jobsPosted}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 500; color: var(--gray-700);">Payment Verified:</span>
+                            <span style="color: ${this.jobData.clientInfo.paymentVerified === 'Yes' ? 'var(--success)' : 'var(--warning)'}; font-weight: 500;">
+                                ${this.jobData.clientInfo.paymentVerified}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <details style="margin-bottom: 15px;" open>
-                <summary style="color: #14a800; font-weight: bold; cursor: pointer; margin-bottom: 8px; font-size: 14px;">📄 Job Description</summary>
-                <div style="background: #f8f9fa; padding: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: #333 !important; border: 1px solid #e0e0e0;">
-                    ${this.jobData.description}
-                </div>
-            </details>
-            
-            <div style="margin-top: 15px;">
-                <button id="generate-proposal-btn" style="
-                    background: #1976d2;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    width: 100%;
-                    font-weight: bold;
-                ">✨ Generate AI Proposal</button>
+            <div class="upwork-ai-section">
+                <details style="all: initial; font-family: inherit;" open>
+                    <summary style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-weight: 600;
+                        font-size: 16px;
+                        color: var(--primary);
+                        margin-bottom: 12px;
+                        cursor: pointer;
+                        list-style: none;
+                        outline: none;
+                        transition: var(--transition);
+                    ">
+                        <span>📄</span>
+                        <span>Job Description</span>
+                    </summary>
+                    <div class="upwork-ai-card" style="
+                        max-height: 200px;
+                        overflow-y: auto;
+                        font-size: 14px;
+                        line-height: 1.6;
+                        color: var(--gray-800);
+                        white-space: pre-wrap;
+                    ">
+                        ${this.jobData.description}
+                    </div>
+                </details>
             </div>
             
-            <div id="proposal-container" style="display: none; margin-top: 15px;">
-                <strong style="color: #14a800; display: block; margin-bottom: 5px;">✍️ Generated Proposal:</strong>
-                <div style="font-size: 11px; color: #666; margin-bottom: 5px; font-style: italic;">
-                    Bold text is shown formatted here. Copy button preserves formatting when pasted in rich text editors.
+            <div class="upwork-ai-section">
+                <button id="generate-proposal-btn" class="upwork-ai-btn" style="
+                    background: linear-gradient(135deg, #1976d2, #1565c0);
+                    color: var(--white);
+                    box-shadow: var(--shadow-md);
+                ">
+                    <span style="font-size: 16px;">✨</span>
+                    Generate AI Proposal
+                </button>
+            </div>
+            
+            <div id="proposal-container" style="display: none;" class="upwork-ai-section">
+                <div class="upwork-ai-section-title">
+                    <span>✍️</span>
+                    <span>Generated Proposal</span>
                 </div>
-                <div id="proposal-content" style="
-                    background: #f8f9fa;
-                    padding: 10px;
-                    border-radius: 4px;
+                <div style="
+                    font-size: 12px;
+                    color: var(--gray-600);
+                    margin-bottom: 12px;
+                    font-style: italic;
+                    padding: 8px 12px;
+                    background: var(--gray-100);
+                    border-radius: 8px;
+                    border-left: 3px solid var(--primary);
+                ">
+                    ℹ️ Bold text is shown formatted here. Copy button preserves formatting when pasted in rich text editors.
+                </div>
+                <div id="proposal-content" class="upwork-ai-card" style="
                     max-height: 300px;
                     overflow-y: auto;
-                    font-size: 13px;
+                    font-size: 14px;
                     line-height: 1.6;
-                    color: #333 !important;
-                    border: 1px solid #e0e0e0;
+                    color: var(--gray-800);
                     white-space: pre-wrap;
+                    min-height: 60px;
                 ">
-                    <div id="proposal-loader" style="text-align: center; padding: 20px; display: none;">
-                        Generating proposal... <br>
-                        <div style="display: inline-block; margin-top: 10px; width: 20px; height: 20px; border: 3px solid rgba(20, 168, 0, 0.3); border-radius: 50%; border-top-color: #14a800; animation: spin 1s ease-in-out infinite;"></div>
+                    <div id="proposal-loader" style="
+                        text-align: center;
+                        padding: 40px 20px;
+                        display: none;
+                        color: var(--gray-600);
+                    ">
+                        <div style="
+                            display: inline-block;
+                            margin-bottom: 16px;
+                            width: 32px;
+                            height: 32px;
+                            border: 3px solid var(--gray-200);
+                            border-radius: 50%;
+                            border-top-color: var(--primary);
+                            animation: spin 1s ease-in-out infinite;
+                        "></div>
+                        <div>Generating proposal...</div>
                         <style>
                             @keyframes spin { to { transform: rotate(360deg); } }
                         </style>
                     </div>
                     <div id="proposal-text" style="font-family: inherit; line-height: 1.6;"></div>
                 </div>
-                <button id="copy-proposal" style="
-                    background: #14a800;
-                    color: white;
-                    border: none;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    width: 100%;
-                    font-weight: bold;
-                    margin-top: 10px;
-                ">📋 Copy Proposal (Plain Text)</button>
-                <!-- Settings options removed -->
+                <button id="copy-proposal" class="upwork-ai-btn upwork-ai-btn-primary" style="margin-top: 12px;">
+                    <span class="upwork-ai-btn-icon">📋</span>
+                    Copy Proposal
+                </button>
             </div>
         `;
     }
@@ -257,9 +627,17 @@ class UpworkJobExtractor {
             textContainer.textContent = '';
             
             try {
+                // Check if browser extension API is available
+                if (!browserAPI && !window.browserAPI && !window.chrome && !window.browser) {
+                    throw new Error('Browser extension API not available. Please reload the page.');
+                }
+                
+                // Use the available API (prefer global browserAPI, then window variants)
+                const api = browserAPI || window.browserAPI || window.chrome || window.browser;
+                
                 // Get freelancer profile from storage via background script
                 const profileResponse = await new Promise(resolve => {
-                    browserAPI.runtime.sendMessage({
+                    api.runtime.sendMessage({
                         action: 'getFreelancerProfile'
                     }, resolve);
                 });
@@ -277,7 +655,7 @@ class UpworkJobExtractor {
                 }
                 
                 // Generate proposal using AI service with profile data
-                const response = await browserAPI.runtime.sendMessage({
+                const response = await api.runtime.sendMessage({
                     action: 'generateProposal',
                     jobData: this.jobData,
                     options: {
@@ -447,13 +825,13 @@ Generated by Upwork Proposal AI Extension
 
         navigator.clipboard.writeText(textData).then(() => {
             const button = document.getElementById('copy-job-data');
-            const originalText = button.textContent;
-            button.textContent = '✅ Copied!';
-            button.style.background = '#28a745';
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="upwork-ai-btn-icon">✅</span>Copied!';
+            button.style.background = 'linear-gradient(135deg, var(--success), #2d8a00)';
             
             setTimeout(() => {
-                button.textContent = originalText;
-                button.style.background = '#14a800';
+                button.innerHTML = originalText;
+                button.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
             }, 2000);
         }).catch(err => {
             console.error('Failed to copy text: ', err);
@@ -463,18 +841,39 @@ Generated by Upwork Proposal AI Extension
     }
 }
 
-// browserAPI is already defined in browser-polyfill.js which is loaded first
-// No need to redefine it here
+// browserAPI is defined in browser-polyfill.js which is loaded first
+// It provides a cross-browser compatible API for Chrome/Firefox/Edge extensions
 
 // Initialize the extractor when the page loads
 function initializeExtractor() {
-    // Wait for the page to be fully loaded
+    // Ensure browser API is available before initializing
+    const checkAPI = () => {
+        return (typeof browserAPI !== 'undefined' && browserAPI) || 
+               (typeof window !== 'undefined' && (window.browserAPI || window.chrome || window.browser));
+    };
+    
+    // Wait for the page to be fully loaded and API to be available
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => new UpworkJobExtractor(), 1000);
+            // Small delay to ensure all scripts are loaded
+            setTimeout(() => {
+                if (checkAPI()) {
+                    new UpworkJobExtractor();
+                } else {
+                    console.warn('Upwork AI Extension: Browser API not available, retrying...');
+                    setTimeout(() => checkAPI() && new UpworkJobExtractor(), 500);
+                }
+            }, 1000);
         });
     } else {
-        setTimeout(() => new UpworkJobExtractor(), 1000);
+        setTimeout(() => {
+            if (checkAPI()) {
+                new UpworkJobExtractor();
+            } else {
+                console.warn('Upwork AI Extension: Browser API not available, retrying...');
+                setTimeout(() => checkAPI() && new UpworkJobExtractor(), 500);
+            }
+        }, 1000);
     }
 }
 

@@ -8,7 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
     
     // Add event listener to save button
-    document.getElementById('save-settings').addEventListener('click', saveSettings);
+    document.getElementById('save-settings').addEventListener('click', function() {
+        // Show loading state
+        const saveButton = document.getElementById('save-settings');
+        saveButton.classList.add('loading');
+        
+        // Call the save function
+        saveSettings().finally(() => {
+            // Remove loading state after completion
+            setTimeout(() => {
+                saveButton.classList.remove('loading');
+            }, 500);
+        });
+    });
     
     // Add event listener to toggle API key visibility
     document.getElementById('toggle-key-visibility').addEventListener('click', toggleApiKeyVisibility);
@@ -19,6 +31,9 @@ document.addEventListener('DOMContentLoaded', function() {
             updateMaskedKeyDisplay(this.value);
         }
     });
+    
+    // Initialize floating labels and other form enhancements
+    initFormEnhancements();
 });
 
 // Use the browser namespace if available (Firefox, some Edge)
@@ -121,12 +136,11 @@ function showStatusMessage(message, type) {
     const statusElement = document.getElementById('status-message');
     
     statusElement.textContent = message;
-    statusElement.className = `status-message ${type}`;
-    statusElement.classList.remove('hidden');
+    statusElement.className = `status-message ${type} visible`;
     
     // Hide the message after 3 seconds
     setTimeout(() => {
-        statusElement.classList.add('hidden');
+        statusElement.classList.remove('visible');
     }, 3000);
 }
 
@@ -137,16 +151,21 @@ function toggleApiKeyVisibility() {
     const apiKeyInput = document.getElementById('api-key');
     const toggleButton = document.getElementById('toggle-key-visibility');
     const maskedDisplay = document.getElementById('masked-key-display');
+    const eyeIcon = toggleButton.querySelector('svg');
     
     if (apiKeyInput.type === 'password') {
         // Show the key
         apiKeyInput.type = 'text';
-        toggleButton.textContent = 'Hide';
+        toggleButton.querySelector('span').textContent = 'Hide';
+        // Change the eye icon to eye-off
+        eyeIcon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
         maskedDisplay.textContent = ''; // Clear masked display when showing full key
     } else {
         // Hide the key
         apiKeyInput.type = 'password';
-        toggleButton.textContent = 'Show';
+        toggleButton.querySelector('span').textContent = 'Show';
+        // Change the icon back to eye
+        eyeIcon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
         updateMaskedKeyDisplay(apiKeyInput.value); // Update masked display
     }
 }
@@ -163,6 +182,31 @@ function updateMaskedKeyDisplay(key) {
     }
     
     maskedDisplay.textContent = maskApiKey(key);
+}
+
+/**
+ * Initialize form enhancements including input focus effects
+ */
+function initFormEnhancements() {
+    // Add focus effects to inputs
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.classList.add('focused');
+            const label = document.querySelector(`label[for="${this.id}"]`);
+            if (label) {
+                label.style.color = 'var(--primary)';
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentNode.classList.remove('focused');
+            const label = document.querySelector(`label[for="${this.id}"]`);
+            if (label) {
+                label.style.color = '';
+            }
+        });
+    });
 }
 
 /**

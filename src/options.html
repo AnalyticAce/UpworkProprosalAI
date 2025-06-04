@@ -4,136 +4,528 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upwork Proposal AI - Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Color Variables */
+            --primary: #14a800;
+            --primary-dark: #0f8e00;
+            --primary-light: #e6f7e3;
+            --dark: #1e2022;
+            --grey-light: #f8f9fa;
+            --grey-medium: #e9ecef;
+            --grey-text: #6c757d;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --warning-bg: #fff3cd;
+            --warning-border: #ffeeba;
+            --success: #28a745;
+            --success-bg: #d4edda;
+            --white: #ffffff;
+            --focus-ring: 0 0 0 3px rgba(20, 168, 0, 0.25);
+            
+            /* Spacing system */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+            
+            /* Shadow system */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
+            
+            /* Border radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* Dark mode variables */
+        [data-theme="dark"] {
+            --primary: #1ec400;
+            --primary-dark: #0f8e00;
+            --primary-light: #183211;
+            --dark: #f8f9fa;
+            --grey-light: #2d3136;
+            --grey-medium: #23272b;
+            --grey-text: #abb0b5;
+            --white: #1a1d21;
+            --focus-ring: 0 0 0 3px rgba(30, 196, 0, 0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            max-width: 600px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: var(--space-xl);
+            max-width: 650px;
             margin: 0 auto;
             line-height: 1.6;
-            color: #333;
+            color: var(--dark);
+            background-color: var(--white);
+            transition: background-color var(--transition-normal), color var(--transition-normal);
         }
         
+        /* Typography */
         h1 {
-            color: #14a800;
-            border-bottom: 2px solid #14a800;
-            padding-bottom: 10px;
+            color: var(--primary);
+            margin-bottom: var(--space-xl);
+            font-weight: 700;
+            font-size: 1.75rem;
+            position: relative;
+            display: inline-block;
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            transform: scaleX(0.4);
+            transform-origin: left;
+            transition: transform var(--transition-normal);
         }
         
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
+        h1:hover::after {
+            transform: scaleX(1);
         }
         
-        input[type="text"], textarea, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-        
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        
+        /* Cards */
         .card {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            background-color: var(--grey-light);
+            box-shadow: var(--shadow-md);
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
         }
         
         .card h2 {
             margin-top: 0;
-            font-size: 18px;
-            color: #333;
+            margin-bottom: var(--space-lg);
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
         }
         
+        .card h2::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: var(--radius-sm);
+            margin-right: var(--space-sm);
+        }
+        
+        .card p {
+            color: var(--grey-text);
+            font-size: 0.95rem;
+            margin-bottom: var(--space-lg);
+        }
+        
+        /* Form elements */
+        .form-group {
+            margin-bottom: var(--space-lg);
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: var(--space-sm);
+            color: var(--dark);
+            font-size: 0.9rem;
+            transition: color var(--transition-normal);
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input[type="text"],
+        input[type="password"],
+        textarea,
+        select {
+            width: 100%;
+            padding: var(--space-md) var(--space-md);
+            border: 1px solid var(--grey-medium);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: inherit;
+            background-color: var(--white);
+            color: var(--dark);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--focus-ring);
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+        
+        /* Custom form components */
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-group input {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            flex: 1;
+        }
+        
+        .input-group button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            height: 100%;
+        }
+        
+        /* Button styling */
         button {
-            background-color: #14a800;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color var(--transition-fast), transform var(--transition-fast);
         }
         
         button:hover {
-            background-color: #0f8e00;
+            background-color: var(--primary-dark);
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:focus {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+        
+        button.secondary {
+            background-color: var(--grey-medium);
+            color: var(--dark);
+        }
+        
+        button.secondary:hover {
+            background-color: #d0d4d9;
+        }
+        
+        /* Alerts and notifications */
+        .alert {
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-lg);
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-warning {
+            background-color: var(--warning-bg);
+            color: #856404;
+            border-left-color: var(--warning);
         }
         
         .status-message {
-            margin-top: 10px;
-            padding: 10px;
-            border-radius: 4px;
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity var(--transition-normal), transform var(--transition-normal);
         }
         
-        label:has(+ input[required]),
-        label:has(+ textarea[required]) {
-            font-weight: bold;
-            color: #d73502;
-        }
-        
-        input[required]:invalid,
-        textarea[required]:invalid {
-            border-color: #d73502;
-            box-shadow: 0 0 0 1px rgba(215, 53, 2, 0.1);
+        .status-message.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
         
         .success {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: var(--success-bg);
+            color: var(--success);
         }
         
         .error {
             background-color: #f8d7da;
-            color: #721c24;
+            color: var(--danger);
         }
         
         .hidden {
             display: none;
         }
         
+        /* Utilities */
         .note {
-            font-size: 12px;
-            color: #666;
-            margin-top: 6px;
+            font-size: 0.75rem;
+            color: var(--grey-text);
+            margin-top: var(--space-xs);
         }
         
         .api-key-input {
-            font-family: monospace;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             letter-spacing: 0.5px;
         }
+        
+        /* Required Field Styling */
+        label.required::after {
+            content: " *";
+            color: var(--danger);
+        }
+        
+        input:required:invalid,
+        textarea:required:invalid {
+            border-color: var(--danger);
+        }
+        
+        input:required:invalid:focus,
+        textarea:required:invalid:focus {
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+        }
+        
+        /* Masked key display */
+        #masked-key-display {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            margin-top: var(--space-xs);
+            font-size: 0.9rem;
+            color: var(--grey-text);
+            height: 20px;
+        }
+        
+        /* Action button area */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-xl);
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            color: var(--grey-text);
+            font-size: 0.85rem;
+        }
+        
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--grey-medium);
+            transition: var(--transition-normal);
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--transition-normal);
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+            margin-right: var(--space-xs);
+        }
+        
+        /* Save button container */
+        .save-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: var(--space-lg);
+        }
+        
+        .save-button {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .save-button .spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .save-button.loading .spinner {
+            opacity: 1;
+        }
+        
+        .save-button.loading span {
+            visibility: hidden;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            body {
+                padding: var(--space-md);
+            }
+            
+            .card {
+                padding: var(--space-lg);
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+            
+            .theme-toggle {
+                margin-top: var(--space-md);
+                margin-right: auto;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
     </style>
 </head>
 <body>
     <h1>Upwork Proposal AI Settings</h1>
     
     <div class="card">
-        <h2>OpenAI API Configuration</h2>
+        <h2>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+            </svg>
+            OpenAI API Configuration
+        </h2>
         <p>To generate proposals, the extension needs an OpenAI API key. Your key is stored locally and only used for generating proposals.</p>
-        <div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #ffeeba;">
+        
+        <div class="alert alert-warning">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
             <strong>Security Notice:</strong> Your API key is stored securely and masked for your privacy. Never share your API key with anyone.
         </div>
         
         <div class="form-group">
-            <label for="api-key">OpenAI API Key</label>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <input type="password" id="api-key" class="api-key-input" placeholder="sk-..." autocomplete="off" style="flex: 1;">
-                <button type="button" id="toggle-key-visibility" style="background: #f0f0f0; color: #333; padding: 8px; width: 80px;">Show</button>
+            <label for="api-key" class="required">OpenAI API Key</label>
+            <div class="input-group">
+                <input type="password" id="api-key" class="api-key-input" placeholder="sk-..." autocomplete="off">
+                <button type="button" id="toggle-key-visibility" class="secondary">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Show</span>
+                </button>
             </div>
-            <div id="masked-key-display" style="font-family: monospace; margin-top: 5px; font-size: 14px; color: #666;"></div>
+            <div id="masked-key-display"></div>
             <p class="note">Get your API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">OpenAI's website</a></p>
         </div>
         
@@ -150,16 +542,22 @@
     </div>
     
     <div class="card">
-        <h2>Freelancer Profile</h2>
-        <p>Provide details about your experience and skills. This information will be used to personalize the proposals. <strong>Required fields are marked with *</strong></p>
+        <h2>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Freelancer Profile
+        </h2>
+        <p>Provide details about your experience and skills. This information will be used to personalize the proposals.</p>
         
         <div class="form-group">
-            <label for="experience">Experience *</label>
+            <label for="experience" class="required">Experience</label>
             <input type="text" id="experience" placeholder="e.g., 5+ years in web development" required>
         </div>
         
         <div class="form-group">
-            <label for="specialty">Specialty/Skills *</label>
+            <label for="specialty" class="required">Specialty/Skills</label>
             <textarea id="specialty" placeholder="e.g., Full-stack development with React, Node.js, and MongoDB" required></textarea>
         </div>
         
@@ -169,12 +567,25 @@
         </div>
     </div>
     
-    <div class="form-group">
-        <button id="save-settings">Save Settings</button>
+    <div class="actions">
+        <div class="theme-toggle">
+            <span>Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+        <div class="save-container">
+            <button id="save-settings" class="save-button">
+                <span>Save Settings</span>
+                <div class="spinner"></div>
+            </button>
+        </div>
     </div>
     
     <div id="status-message" class="status-message hidden"></div>
     
     <script src="options.js"></script>
+    <script src="options-ui.js"></script>
 </body>
 </html>

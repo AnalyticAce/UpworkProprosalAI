@@ -21,3 +21,10 @@ const browserAPI = (function() {
 if (typeof module !== 'undefined') {
     module.exports = browserAPI;
 }
+
+// Make browserAPI available globally
+if (typeof window !== 'undefined') {
+    window.browserAPI = browserAPI;
+} else if (typeof self !== 'undefined') {
+    self.browserAPI = browserAPI;
+}

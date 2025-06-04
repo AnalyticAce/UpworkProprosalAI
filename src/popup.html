@@ -4,156 +4,434 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upwork Job Data Extractor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            width: 300px;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #14a800, #0d7d00);
-            color: white;
+        :root {
+            /* Color Variables */
+            --primary: #14a800;
+            --primary-dark: #0d7d00;
+            --primary-light: #e6f7e3;
+            --white: #ffffff;
+            --success: #38b000;
+            --warning: #f77f00;
+            --danger: #d62828;
+            
+            /* Animation */
+            --transition-normal: 0.3s ease;
+            
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            
+            /* Shadow */
+            --shadow-popup: 0 10px 25px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 340px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            color: white;
+            overflow: hidden;
+            border-radius: 12px;
+            background: var(--primary);
+        }
+
+        /* Modern Glass-Morphism Effect */
+        .glass-container {
+            background: linear-gradient(135deg, rgba(20, 168, 0, 0.95), rgba(13, 125, 0, 0.92));
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            padding: var(--space-md);
+            min-height: 100%;
+        }
+        
+        /* Header Area */
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            padding: var(--space-md) var(--space-md) var(--space-sm);
+            position: relative;
         }
         
-        .header img {
-            width: 32px;
-            height: 32px;
-            margin-bottom: 10px;
-            border-radius: 6px;
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: var(--space-md);
+        }
+        
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: white;
+            padding: var(--space-xs);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform var(--transition-normal);
+        }
+        
+        .glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 110%;
+            height: 110%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 70%);
+            opacity: 0.7;
+            pointer-events: none;
         }
         
         .header h1 {
-            font-size: 18px;
-            margin: 0 0 10px 0;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 var(--space-xs) 0;
+            position: relative;
+            display: inline-block;
         }
         
         .header p {
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.9;
             margin: 0;
+            font-weight: 400;
+        }
+        
+        /* Feature Cards */
+        .features {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-md);
+            margin: var(--space-md) 0;
         }
         
         .feature {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-left: 4px solid white;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: var(--space-md);
+            transition: transform var(--transition-normal), background var(--transition-normal);
+            border-left: none;
+            position: relative;
+            overflow: hidden;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+        }
+        
+        .feature::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        .feature:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.2);
         }
         
         .feature h3 {
-            margin: 0 0 8px 0;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            margin: 0 0 var(--space-sm) 0;
+            font-size: 15px;
+            font-weight: 600;
         }
         
         .feature p {
             margin: 0;
             font-size: 12px;
             opacity: 0.9;
-            line-height: 1.4;
-        }
-        
-        .status {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
+            line-height: 1.5;
         }
         
         .icon {
-            font-size: 16px;
-            margin-right: 8px;
+            font-size: 18px;
+            margin-right: var(--space-sm);
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
         }
         
-        .status-note {
-            margin-top: 5px;
-            font-size: 11px;
+        /* Status Area */
+        .status {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: var(--space-md);
+            margin-top: var(--space-md);
+            text-align: center;
+            position: relative;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+            overflow: hidden;
+            transition: background var(--transition-normal);
+        }
+        
+        .pulse {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            pointer-events: none;
+            animation: pulse 2s infinite;
+        }
+        
+        .status p {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .status strong {
+            font-weight: 600;
+            margin-right: var(--space-xs);
         }
         
         .status-active {
-            color: #90EE90;
+            color: #b0ff74;
+            position: relative;
+            font-weight: 500;
         }
         
         .status-inactive {
-            color: #FFB6C1;
+            color: #ffcccb;
+            position: relative;
+            font-weight: 500;
         }
         
-        .footer {
-            text-align: center;
-            margin-top: 20px;
+        .status-note {
+            margin-top: var(--space-sm);
             font-size: 11px;
             opacity: 0.8;
         }
         
-        .header-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-        
+        /* Settings Button */
         .settings-button {
-            text-align: center;
-            margin-top: 15px;
+            margin-top: var(--space-lg);
+            padding: 0 var(--space-xs);
         }
         
         .settings-btn {
-            background: rgba(255, 255, 255, 0.2);
+            width: 100%;
+            background: rgba(255, 255, 255, 0.25);
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 13px;
-            transition: background 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: all var(--transition-normal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .settings-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: left 0.6s;
         }
         
         .settings-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .settings-btn:hover::after {
+            left: 100%;
+        }
+        
+        .settings-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: var(--space-lg);
+            padding: var(--space-sm) 0;
+            opacity: 0.7;
+            font-size: 11px;
+            font-weight: 400;
+            position: relative;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 25%;
+            width: 50%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0), 
+                rgba(255,255,255,0.5),
+                rgba(255,255,255,0));
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.5;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+        }
+        
+        .header, .features, .status, .settings-button, .footer {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .header {
+            animation-delay: 0.1s;
+        }
+        
+        .features {
+            animation-delay: 0.2s;
+        }
+        
+        .status {
+            animation-delay: 0.3s;
+        }
+        
+        .settings-button {
+            animation-delay: 0.4s;
+        }
+        
+        .footer {
+            animation-delay: 0.5s;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <img src="../assets/icons/icon48.png" alt="Upwork Extractor" class="header-icon">
-        <h1>📋 Upwork Job Extractor</h1>
-        <p>Extract job details for better proposals</p>
-    </div>
-    
-    <div class="feature">
-        <h3><span class="icon">📝</span>Auto Extract</h3>
-        <p>Automatically extracts job title, budget, skills, and client information</p>
-    </div>
-    
-    <div class="feature">
-        <h3><span class="icon">📋</span>Copy Data</h3>
-        <p>One-click copy of all job details to your clipboard</p>
-    </div>
-    
-    <div class="feature">
-        <h3><span class="icon">👤</span>Client Insights</h3>
-        <p>View client rating, spending history, and payment verification status</p>
-    </div>
-    
-    <div class="status">
-        <p><strong>Status:</strong> <span id="status">Ready</span></p>
-        <p class="status-note">Navigate to any Upwork job page to see the extractor in action!</p>
-    </div>
-    
-    <div class="settings-button">
-        <button id="open-settings" class="settings-btn">⚙️ Configure AI Settings</button>
-    </div>
-    
-    <div class="footer">
-        <p>v1.0.0 - Upwork Proposal AI</p>
+    <div class="glass-container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="../assets/icons/icon48.png" alt="Upwork Extractor" class="header-icon">
+                <div class="glow"></div>
+            </div>
+            <h1>Upwork Job Extractor</h1>
+            <p>Extract job details for better proposals</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </div>
+                    Auto Extract
+                </h3>
+                <p>Automatically extracts job title, budget, skills, and client information</p>
+            </div>
+            
+            <div class="feature">
+                <h3>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                    </div>
+                    Copy Data
+                </h3>
+                <p>One-click copy of all job details to your clipboard</p>
+            </div>
+            
+            <div class="feature">
+                <h3>
+                    <div class="icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    Client Insights
+                </h3>
+                <p>View client rating, spending history, and payment verification status</p>
+            </div>
+        </div>
+        
+        <div class="status">
+            <div class="pulse"></div>
+            <p><strong>Status:</strong> <span id="status" class="status-inactive">Ready</span></p>
+            <p class="status-note">Navigate to any Upwork job page to see the extractor in action!</p>
+        </div>
+        
+        <div class="settings-button">
+            <button id="open-settings" class="settings-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                Configure AI Settings
+            </button>
+        </div>
+        
+        <div class="footer">
+            <p>v1.0.0 — Upwork Proposal AI</p>
+        </div>
     </div>
     
     <script src="popup.js"></script>
+    <script src="popup-ui.js"></script>
+        });
+    </script>
 </body>
 </html>

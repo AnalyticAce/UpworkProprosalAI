@@ -7,6 +7,9 @@
         "activeTab",
         "storage"
     ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    },
     "host_permissions": [
         "https://api.openai.com/*"
     ],
@@ -40,7 +43,7 @@
     },
     "web_accessible_resources": [
         {
-            "resources": ["src/*.js"],
+            "resources": ["src/*.js", "src/popup-ui.js", "src/options-ui.js"],
             "matches": ["https://www.upwork.com/*"]
         }
     ]
