@@ -16,13 +16,13 @@
     "content_scripts": [
         {
             "matches": ["https://www.upwork.com/jobs/*"],
-            "js": ["src/browser-polyfill.js", "src/content.js"],
+            "js": ["src/js/browser-polyfill.js", "src/js/content.js"],
             "run_at": "document_end"
         }
     ],
     "action": {
         "default_title": "Upwork Job Data Extractor",
-        "default_popup": "src/popup.html",
+        "default_popup": "src/html/popup.html",
         "default_icon": {
             "16": "assets/icons/icon16.png",
             "48": "assets/icons/icon48.png",
@@ -35,15 +35,15 @@
         "128": "assets/icons/icon128.png"
     },
     "background": {
-        "service_worker": "src/background.js"
+        "service_worker": "src/js/background.js"
     },
     "options_ui": {
-        "page": "src/options.html",
+        "page": "src/html/options.html",
         "open_in_tab": true
     },
     "web_accessible_resources": [
         {
-            "resources": ["src/*.js", "src/popup-ui.js", "src/options-ui.js"],
+            "resources": ["src/js/*.js", "src/js/popup-ui.js", "src/js/options-ui.js"],
             "matches": ["https://www.upwork.com/*"]
         }
     ]
