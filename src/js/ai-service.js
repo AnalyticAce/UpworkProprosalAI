@@ -192,6 +192,17 @@ class AIService {
             if (personalInfo.achievements) freelancerExperience += `Key achievements: ${personalInfo.achievements}. `;
         }
 
+        // Build custom instructions section
+        let customInstructionsSection = '';
+        if (personalInfo && personalInfo.customInstructions) {
+            customInstructionsSection = `
+        # Custom Instructions
+        Please follow these specific instructions when generating the proposal:
+        ${personalInfo.customInstructions}
+        
+        `;
+        }
+
         let prompt = `
         # Role
         You are an expert Upwork freelancer proposal writer who creates compelling, professional proposals that win high-value contracts.
@@ -310,6 +321,7 @@ class AIService {
         **Freelancer Profile:** ${freelancerExperience}
         **Job Requirements:** ${description}
         **Key Skills Needed:** ${Array.isArray(skills) ? skills.join(', ') : skills}
+        ${customInstructionsSection}
 
         # Task
         Create a focused, professional proposal that:

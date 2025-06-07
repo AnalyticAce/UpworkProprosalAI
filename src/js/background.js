@@ -201,7 +201,8 @@ async function getFreelancerProfile(sendResponse) {
             browserAPI.storage.sync.get([
                 'freelancerExperience',
                 'freelancerSpecialty',
-                'freelancerAchievements'
+                'freelancerAchievements',
+                'freelancerCustomInstructions'
             ], resolve);
         });
         

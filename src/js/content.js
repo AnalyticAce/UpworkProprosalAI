@@ -662,7 +662,8 @@ class UpworkJobExtractor {
                         personalInfo: {
                             experience: profileData.freelancerExperience,
                             specialty: profileData.freelancerSpecialty,
-                            achievements: profileData.freelancerAchievements || ''
+                            achievements: profileData.freelancerAchievements || '',
+                            customInstructions: profileData.freelancerCustomInstructions || ''
                         }
                     }
                 });

@@ -54,6 +54,7 @@ async function loadSettings() {
         'freelancerExperience',
         'freelancerSpecialty',
         'freelancerAchievements',
+        'freelancerCustomInstructions',
         // Legacy support
         'openaiApiKey',
         'openaiModel'
@@ -90,6 +91,10 @@ async function loadSettings() {
         if (result.freelancerAchievements) {
             document.getElementById('achievements').value = result.freelancerAchievements;
         }
+        
+        if (result.freelancerCustomInstructions) {
+            document.getElementById('custom-instructions').value = result.freelancerCustomInstructions;
+        }
     });
 }
 
@@ -103,6 +108,7 @@ async function saveSettings() {
     const experience = document.getElementById('experience').value.trim();
     const specialty = document.getElementById('specialty').value.trim();
     const achievements = document.getElementById('achievements').value.trim();
+    const customInstructions = document.getElementById('custom-instructions').value.trim();
     
     // Validation for required fields
     if (!apiKey) {
@@ -140,6 +146,7 @@ async function saveSettings() {
             'freelancerExperience': experience,
             'freelancerSpecialty': specialty,
             'freelancerAchievements': achievements,
+            'freelancerCustomInstructions': customInstructions,
             // Keep legacy keys for backward compatibility
             'openaiApiKey': provider === 'openai' ? apiKey : '',
             'openaiModel': provider === 'openai' ? model : ''
