@@ -302,6 +302,27 @@
             display: none;
         }
         
+        /* Provider-specific styling */
+        .provider-openai .anthropic-only {
+            display: none;
+        }
+        
+        .provider-anthropic .openai-only {
+            display: none;
+        }
+        
+        #anthropic-models {
+            display: none;
+        }
+        
+        .provider-anthropic #anthropic-models {
+            display: block;
+        }
+        
+        .provider-anthropic #openai-models {
+            display: none;
+        }
+        
         /* Utilities */
         .note {
             font-size: 0.75rem;
@@ -502,9 +523,9 @@
                 <path d="M12 16v-4"></path>
                 <path d="M12 8h.01"></path>
             </svg>
-            OpenAI API Configuration
+            AI Provider Configuration
         </h2>
-        <p>To generate proposals, the extension needs an OpenAI API key. Your key is stored locally and only used for generating proposals.</p>
+        <p>Choose your AI provider and configure the corresponding API key. Your key is stored locally and only used for generating proposals.</p>
         
         <div class="alert alert-warning">
             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -514,9 +535,18 @@
         </div>
         
         <div class="form-group">
-            <label for="api-key" class="required">OpenAI API Key</label>
+            <label for="ai-provider" class="required">AI Provider</label>
+            <select id="ai-provider">
+                <option value="openai">OpenAI (GPT-3.5, GPT-4)</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+            </select>
+            <p class="note">Choose your preferred AI provider for generating proposals</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="api-key" class="required">API Key</label>
             <div class="input-group">
-                <input type="password" id="api-key" class="api-key-input" placeholder="sk-..." autocomplete="off">
+                <input type="password" id="api-key" class="api-key-input" placeholder="Enter your API key..." autocomplete="off">
                 <button type="button" id="toggle-key-visibility" class="secondary">
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -526,17 +556,25 @@
                 </button>
             </div>
             <div id="masked-key-display"></div>
-            <p class="note">Get your API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">OpenAI's website</a></p>
+            <div id="api-key-help">
+                <p class="note">Get your OpenAI API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">OpenAI's website</a></p>
+            </div>
         </div>
         
         <div class="form-group">
             <label for="model">AI Model</label>
             <select id="model">
-                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Faster, cheaper)</option>
-                <option value="gpt-4">GPT-4 (Better quality, more expensive)</option>
-                <option value="gpt-4.1">GPT-4.1 (Latest model, enhanced capabilities)</option>
-                <option value="gpt-4.1-nano">GPT-4.1 Nano (Lightweight, fast)</option>
-                <option value="gpt-4o-mini">GPT-4o Mini (Optimized performance)</option>
+                <!-- OpenAI Models -->
+                <optgroup label="OpenAI Models" id="openai-models">
+                    <option value="gpt-4.1">GPT-4.1 (Better quality, more expensive)</option>
+                    <option value="gpt-4.1-nano">GPT-4.1 Nano (Fastest)</option>
+                    <option value="gpt-4.1-mini">GPT-4.1 Mini (Efficient)</option>
+                </optgroup>
+                <!-- Anthropic Models -->
+                <optgroup label="Anthropic Models" id="anthropic-models">
+                    <option value="claude-opus-4-20250514">Claude 4 Opus (Latest, most advanced)</option>
+                    <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Capable)</option>
+                </optgroup>
             </select>
         </div>
     </div>

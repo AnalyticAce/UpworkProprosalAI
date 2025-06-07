@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Add event listener for provider change
+    document.getElementById('ai-provider').addEventListener('change', handleProviderChange);
+    
     // Initialize floating labels and other form enhancements
     initFormEnhancements();
 });
@@ -45,26 +48,35 @@ const browserAPI = window.browser || window.chrome || null;
  */
 async function loadSettings() {
     browserAPI.storage.sync.get([
-        'openaiApiKey',
-        'openaiModel',
+        'apiKey',
+        'aiProvider',
+        'model',
         'freelancerExperience',
         'freelancerSpecialty',
-        'freelancerAchievements'
+        'freelancerAchievements',
+        // Legacy support
+        'openaiApiKey',
+        'openaiModel'
     ], (result) => {
-        // Set API key (ensuring the input type is password for security)
+        // Handle provider selection (with legacy support)
+        const provider = result.aiProvider || 'openai';
+        document.getElementById('ai-provider').value = provider;
+        handleProviderChange(); // Update UI based on provider
+        
+        // Set API key (with legacy support)
         const apiKeyInput = document.getElementById('api-key');
         apiKeyInput.type = 'password';
         
-        if (result.openaiApiKey) {
-            apiKeyInput.value = result.openaiApiKey;
+        const apiKey = result.apiKey || result.openaiApiKey || '';
+        if (apiKey) {
+            apiKeyInput.value = apiKey;
             // Update the masked display
-            updateMaskedKeyDisplay(result.openaiApiKey);
+            updateMaskedKeyDisplay(apiKey);
         }
         
-        // Set model
-        if (result.openaiModel) {
-            document.getElementById('model').value = result.openaiModel;
-        }
+        // Set model (with legacy support)
+        const model = result.model || result.openaiModel || (provider === 'anthropic' ? 'claude-3-haiku-20240307' : 'gpt-3.5-turbo');
+        document.getElementById('model').value = model;
         
         // Set freelancer details
         if (result.freelancerExperience) {
@@ -85,6 +97,7 @@ async function loadSettings() {
  * Save settings to Chrome storage
  */
 async function saveSettings() {
+    const provider = document.getElementById('ai-provider').value;
     const apiKey = document.getElementById('api-key').value.trim();
     const model = document.getElementById('model').value;
     const experience = document.getElementById('experience').value.trim();
@@ -92,8 +105,19 @@ async function saveSettings() {
     const achievements = document.getElementById('achievements').value.trim();
     
     // Validation for required fields
-    if (!apiKey || !apiKey.startsWith('sk-')) {
+    if (!apiKey) {
+        showStatusMessage('Please enter an API key', 'error');
+        return;
+    }
+    
+    // Validate API key format based on provider
+    if (provider === 'openai' && !apiKey.startsWith('sk-')) {
         showStatusMessage('Please enter a valid OpenAI API key starting with "sk-"', 'error');
+        return;
+    }
+    
+    if (provider === 'anthropic' && !apiKey.startsWith('sk-ant-')) {
+        showStatusMessage('Please enter a valid Anthropic API key starting with "sk-ant-"', 'error');
         return;
     }
     
@@ -110,20 +134,84 @@ async function saveSettings() {
     try {
         // Save to storage
         await browserAPI.storage.sync.set({
-            'openaiApiKey': apiKey,
-            'openaiModel': model,
+            'apiKey': apiKey,
+            'aiProvider': provider,
+            'model': model,
             'freelancerExperience': experience,
             'freelancerSpecialty': specialty,
-            'freelancerAchievements': achievements
+            'freelancerAchievements': achievements,
+            // Keep legacy keys for backward compatibility
+            'openaiApiKey': provider === 'openai' ? apiKey : '',
+            'openaiModel': provider === 'openai' ? model : ''
         });
         
         // Notify background script about the API key update
-        browserAPI.runtime.sendMessage({ action: 'saveApiKey', apiKey });
+        browserAPI.runtime.sendMessage({ 
+            action: 'saveApiConfig', 
+            apiKey, 
+            provider 
+        });
         
         showStatusMessage('Settings saved successfully!', 'success');
     } catch (error) {
         console.error('Error saving settings:', error);
         showStatusMessage('Failed to save settings. Please try again.', 'error');
+    }
+}
+
+/**
+ * Handle provider change and update UI accordingly
+ */
+function handleProviderChange() {
+    const provider = document.getElementById('ai-provider').value;
+    const apiKeyInput = document.getElementById('api-key');
+    const helpText = document.getElementById('api-key-help');
+    const openAIModels = document.getElementById('openai-models');
+    const anthropicModels = document.getElementById('anthropic-models');
+    const modelSelect = document.getElementById('model');
+    
+    // Update body class for CSS styling
+    document.body.className = document.body.className.replace(/provider-\w+/g, '');
+    document.body.classList.add(`provider-${provider}`);
+    
+    // Update placeholder and help text based on provider
+    if (provider === 'anthropic') {
+        apiKeyInput.placeholder = 'sk-ant-...';
+        helpText.innerHTML = '<p class="note">Get your Anthropic API key from <a href="https://console.anthropic.com/" target="_blank" rel="noopener">Anthropic Console</a></p>';
+        
+        // Show/hide model groups
+        openAIModels.style.display = 'none';
+        anthropicModels.style.display = 'block';
+        
+        // Set default Anthropic model if currently selected model is OpenAI
+        if (modelSelect.value.startsWith('gpt-')) {
+            modelSelect.value = 'claude-3-haiku-20240307';
+        }
+    } else {
+        apiKeyInput.placeholder = 'sk-...';
+        helpText.innerHTML = '<p class="note">Get your OpenAI API key from <a href="https://platform.openai.com/account/api-keys" target="_blank" rel="noopener">OpenAI\'s website</a></p>';
+        
+        // Show/hide model groups
+        openAIModels.style.display = 'block';
+        anthropicModels.style.display = 'none';
+        
+        // Set default OpenAI model if currently selected model is Anthropic
+        if (modelSelect.value.startsWith('claude-')) {
+            modelSelect.value = 'gpt-3.5-turbo';
+        }
+    }
+    
+    // Validate current API key against new provider
+    const currentApiKey = apiKeyInput.value.trim();
+    if (currentApiKey) {
+        const isValidForProvider = (provider === 'anthropic' && currentApiKey.startsWith('sk-ant-')) ||
+                                  (provider === 'openai' && currentApiKey.startsWith('sk-') && !currentApiKey.startsWith('sk-ant-'));
+        
+        if (!isValidForProvider) {
+            // Show a subtle warning that the current key doesn't match the provider
+            const expectedFormat = provider === 'anthropic' ? 'sk-ant-...' : 'sk-...';
+            console.log(`Current API key format doesn't match ${provider} provider (expected: ${expectedFormat})`);
+        }
     }
 }
 

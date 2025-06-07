@@ -4,10 +4,24 @@
  */
 
 class AIService {
-    constructor(apiKey) {
+    constructor(apiKey, provider = 'openai') {
         this.apiKey = apiKey;
-        this.apiUrl = 'https://api.openai.com/v1/chat/completions';
-        this.model = 'gpt-3.5-turbo'; // Default model
+        this.provider = provider;
+        this.setProvider(provider);
+        this.model = provider === 'anthropic' ? 'claude-3-haiku-20240307' : 'gpt-3.5-turbo'; // Default model
+    }
+
+    /**
+     * Set the AI provider
+     * @param {string} provider - The provider name ('openai' or 'anthropic')
+     */
+    setProvider(provider) {
+        this.provider = provider;
+        if (provider === 'anthropic') {
+            this.apiUrl = 'https://api.anthropic.com/v1/messages';
+        } else {
+            this.apiUrl = 'https://api.openai.com/v1/chat/completions';
+        }
     }
 
     /**
@@ -31,7 +45,11 @@ class AIService {
      * @returns {boolean} True if the API key is set, false otherwise
      */
     isConfigured() {
-        return Boolean(this.apiKey && this.apiKey.startsWith('sk-'));
+        if (this.provider === 'anthropic') {
+            return Boolean(this.apiKey && this.apiKey.startsWith('sk-ant-'));
+        } else {
+            return Boolean(this.apiKey && this.apiKey.startsWith('sk-'));
+        }
     }
 
     /**
@@ -42,7 +60,8 @@ class AIService {
      */
     async generateProposal(jobData, options = {}) {
         if (!this.isConfigured()) {
-            throw new Error('OpenAI API key is not configured');
+            const providerName = this.provider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+            throw new Error(`${providerName} API key is not configured`);
         }
 
         // Validate that required personal info is provided
@@ -53,40 +72,12 @@ class AIService {
         const prompt = this.buildPrompt(jobData, options);
 
         try {
-            const response = await fetch(this.apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
-                body: JSON.stringify({
-                    model: this.model,
-                    messages: [
-                        {
-                            role: 'system',
-                            content: 'You are an expert freelance proposal writer who creates personalized, compelling proposals for Upwork jobs.'
-                        },
-                        {
-                            role: 'user',
-                            content: prompt
-                        }
-                    ],
-                    temperature: 0.7,
-                    max_tokens: 1000,
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`API Error: ${errorData.error?.message || response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.choices[0].message.content.trim();
+            const response = await this.makeApiCall(prompt);
+            return response;
         } catch (error) {
             // Redact API key from error message for security
             const redactedError = this.redactApiKey(error.message);
-            console.error('Error calling OpenAI API:', redactedError);
+            console.error(`Error calling ${this.provider.toUpperCase()} API:`, redactedError);
             
             // Make sure we don't include API key in error messages shown to users
             const safeErrorMessage = this.redactApiKey(error.message);
@@ -95,7 +86,95 @@ class AIService {
     }
 
     /**
-     * Build the prompt for the OpenAI API
+     * Make API call to the selected provider
+     * @param {string} prompt - The prompt to send
+     * @returns {Promise<string>} The generated response
+     */
+    async makeApiCall(prompt) {
+        if (this.provider === 'anthropic') {
+            return this.makeAnthropicCall(prompt);
+        } else {
+            return this.makeOpenAICall(prompt);
+        }
+    }
+
+    /**
+     * Make API call to OpenAI
+     * @param {string} prompt - The prompt to send
+     * @returns {Promise<string>} The generated response
+     */
+    async makeOpenAICall(prompt) {
+        const response = await fetch(this.apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`
+            },
+            body: JSON.stringify({
+                model: this.model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an expert freelance proposal writer who creates personalized, compelling proposals for Upwork jobs.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 1000,
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`API Error: ${errorData.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content.trim();
+    }
+
+    /**
+     * Make API call to Anthropic
+     * @param {string} prompt - The prompt to send
+     * @returns {Promise<string>} The generated response
+     */
+    async makeAnthropicCall(prompt) {
+        const response = await fetch(this.apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': this.apiKey,
+                'anthropic-version': '2023-06-01',
+                'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+                model: this.model,
+                max_tokens: 1000,
+                system: 'You are an expert freelance proposal writer who creates personalized, compelling proposals for Upwork jobs.',
+                messages: [
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`API Error: ${errorData.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.content[0].text.trim();
+    }
+
+    /**
+     * Build the prompt for the AI API
      * @param {Object} jobData - Job data object
      * @param {Object} options - Generation options
      * @returns {string} The formatted prompt
@@ -135,6 +214,7 @@ class AIService {
         - **ONLY use experiences, skills, and achievements explicitly stated in freelancer data**
         - **INCLUDE ONLY what is relevant to the job at hand**
         - **INCLUDE contact information only if explicitly provided in freelancer data**
+        - **Return ONLY the proposal text, no additional explanations or comments**
 
         # Proposal Structure
 
@@ -317,10 +397,10 @@ class AIService {
             return prompt;
         }
     /**
-     * Get the API key from storage
-     * @returns {Promise<string>} The API key
+     * Get the API key and provider from storage
+     * @returns {Promise<{apiKey: string, provider: string}>} The API key and provider
      */
-    static async getApiKeyFromStorage() {
+    static async getApiConfigFromStorage() {
         return new Promise((resolve) => {
             // Get the API based on environment
             let api;
@@ -335,18 +415,22 @@ class AIService {
                 throw new Error('Browser API not available');
             }
             
-            api.storage.sync.get(['openaiApiKey'], (result) => {
-                resolve(result.openaiApiKey || '');
+            api.storage.sync.get(['apiKey', 'aiProvider'], (result) => {
+                resolve({
+                    apiKey: result.apiKey || '',
+                    provider: result.aiProvider || 'openai'
+                });
             });
         });
     }
 
     /**
-     * Save the API key to storage
+     * Save the API key and provider to storage
      * @param {string} apiKey - The API key to save
+     * @param {string} provider - The provider to save
      * @returns {Promise<void>}
      */
-    static async saveApiKeyToStorage(apiKey) {
+    static async saveApiConfigToStorage(apiKey, provider) {
         return new Promise((resolve) => {
             // Get the API based on environment
             let api;
@@ -361,28 +445,59 @@ class AIService {
                 throw new Error('Browser API not available');
             }
             
-            api.storage.sync.set({ 'openaiApiKey': apiKey }, resolve);
+            api.storage.sync.set({ 'apiKey': apiKey, 'aiProvider': provider }, resolve);
         });
     }
 
     /**
-     * Load the API key from .env or storage
+     * Get the API key from storage (legacy support)
      * @returns {Promise<string>} The API key
      */
-    static async loadApiKey() {
+    static async getApiKeyFromStorage() {
+        const config = await AIService.getApiConfigFromStorage();
+        return config.apiKey;
+    }
+
+    /**
+     * Save the API key to storage (legacy support)
+     * @param {string} apiKey - The API key to save
+     * @returns {Promise<void>}
+     */
+    static async saveApiKeyToStorage(apiKey) {
+        const config = await AIService.getApiConfigFromStorage();
+        return AIService.saveApiConfigToStorage(apiKey, config.provider);
+    }
+
+    /**
+     * Load the API key and provider from .env or storage
+     * @returns {Promise<{apiKey: string, provider: string}>} The API config
+     */
+    static async loadApiConfig() {
         // First try to get from chrome storage
-        const storedKey = await AIService.getApiKeyFromStorage();
-        if (storedKey) return storedKey;
+        const config = await AIService.getApiConfigFromStorage();
+        if (config.apiKey) return config;
         
         // If not in storage, try to get from env (this is only for development)
         try {
             // This would only work if somehow the extension had access to env vars
             // which is generally not the case for browser extensions
-            return process.env.OPENAI_API_KEY;
+            return {
+                apiKey: process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY || '',
+                provider: process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'openai'
+            };
         } catch (e) {
             // Expected in browser context
-            return '';
+            return { apiKey: '', provider: 'openai' };
         }
+    }
+
+    /**
+     * Load the API key from .env or storage (legacy support)
+     * @returns {Promise<string>} The API key
+     */
+    static async loadApiKey() {
+        const config = await AIService.loadApiConfig();
+        return config.apiKey;
     }
 
     /**
@@ -393,14 +508,60 @@ class AIService {
     redactApiKey(text) {
         if (!text) return text;
         
-        // Pattern for OpenAI API keys
-        const apiKeyPattern = /sk-[a-zA-Z0-9]{20,}/g;
+        // Pattern for OpenAI and Anthropic API keys
+        const openaiKeyPattern = /sk-[a-zA-Z0-9]{20,}/g;
+        const anthropicKeyPattern = /sk-ant-[a-zA-Z0-9]{95,}/g;
         
         // Replace with redacted version
-        return text.toString().replace(apiKeyPattern, key => {
+        let redactedText = text.toString().replace(openaiKeyPattern, key => {
             // Show only first 3 and last 4 characters
             return `${key.substring(0, 5)}...${key.substring(key.length - 4)}`;
         });
+        
+        redactedText = redactedText.replace(anthropicKeyPattern, key => {
+            // Show only first 7 and last 4 characters for Anthropic keys
+            return `${key.substring(0, 7)}...${key.substring(key.length - 4)}`;
+        });
+        
+        return redactedText;
+    }
+
+    /**
+     * Save API key to storage (legacy support)
+     * @param {string} apiKey - The API key to save
+     * @returns {Promise<void>}
+     */
+    static async saveApiKeyToStorage(apiKey) {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            return new Promise((resolve) => {
+                chrome.storage.sync.set({ openaiApiKey: apiKey }, () => {
+                    resolve();
+                });
+            });
+        } else if (typeof browser !== 'undefined' && browser.storage) {
+            return browser.storage.sync.set({ openaiApiKey: apiKey });
+        } else {
+            throw new Error('Storage API not available');
+        }
+    }
+
+    /**
+     * Get API key from storage (legacy support)
+     * @returns {Promise<string>}
+     */
+    static async getApiKeyFromStorage() {
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+            return new Promise((resolve) => {
+                chrome.storage.sync.get(['openaiApiKey'], (result) => {
+                    resolve(result.openaiApiKey || '');
+                });
+            });
+        } else if (typeof browser !== 'undefined' && browser.storage) {
+            const result = await browser.storage.sync.get(['openaiApiKey']);
+            return result.openaiApiKey || '';
+        } else {
+            throw new Error('Storage API not available');
+        }
     }
 }
 

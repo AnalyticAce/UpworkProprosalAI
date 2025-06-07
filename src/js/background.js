@@ -31,6 +31,10 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
             saveApiKey(message.apiKey, sendResponse);
             return true;
         
+        case 'saveApiConfig':
+            saveApiConfig(message.apiKey, message.provider, message.model, sendResponse);
+            return true;
+        
         case 'getApiKey':
             getApiKey(sendResponse);
             return true;
@@ -46,21 +50,32 @@ browserAPI.runtime.onMessage.addListener((message, sender, sendResponse) => {
  */
 async function initializeAIService() {
     try {
-        // Get settings from storage
+        // Get settings from storage (both new and legacy keys)
         const settings = await new Promise((resolve) => {
-            browserAPI.storage.sync.get(['openaiApiKey', 'openaiModel'], resolve);
+            browserAPI.storage.sync.get([
+                'apiKey', 'aiProvider', 'model',
+                'openaiApiKey', 'openaiModel'  // Legacy support
+            ], resolve);
         });
         
-        if (settings.openaiApiKey) {
-            // Initialize the service
-            aiService = new AIService(settings.openaiApiKey);
+        // Determine provider and API key (with legacy support)
+        const provider = settings.aiProvider || 'openai';
+        const apiKey = settings.apiKey || settings.openaiApiKey;
+        const model = settings.model || settings.openaiModel;
+        
+        if (apiKey) {
+            // Initialize the service with provider support
+            aiService = new AIService(apiKey, provider);
             
             // Set the model if specified
-            if (settings.openaiModel) {
-                aiService.setModel(settings.openaiModel);
+            if (model) {
+                aiService.setModel(model);
             }
             
-            console.log('AI service initialized successfully with model:', settings.openaiModel || 'default');
+            console.log('AI service initialized successfully:', {
+                provider: provider,
+                model: model || 'default'
+            });
         } else {
             console.log('No API key found, AI service not initialized');
         }
@@ -76,29 +91,41 @@ async function initializeAIService() {
  */
 async function handleProposalGeneration(message, sendResponse) {
     try {
-        // Get settings from storage
+        // Get settings from storage (both new and legacy keys)
         const settings = await new Promise((resolve) => {
-            browserAPI.storage.sync.get(['openaiApiKey', 'openaiModel'], resolve);
+            browserAPI.storage.sync.get([
+                'apiKey', 'aiProvider', 'model',
+                'openaiApiKey', 'openaiModel'  // Legacy support
+            ], resolve);
         });
         
+        // Determine provider and API key (with legacy support)
+        const provider = settings.aiProvider || 'openai';
+        const apiKey = settings.apiKey || settings.openaiApiKey;
+        const model = settings.model || settings.openaiModel;
+        
         // Initialize AI service if not already done or if settings have changed
-        if (!aiService || aiService.apiKey !== settings.openaiApiKey) {
-            if (!settings.openaiApiKey) {
-                sendResponse({ error: 'API key not configured. Please set up your OpenAI API key in the extension options.' });
+        if (!aiService || aiService.apiKey !== apiKey || aiService.provider !== provider) {
+            if (!apiKey) {
+                const providerName = provider === 'anthropic' ? 'Anthropic' : 'OpenAI';
+                sendResponse({ 
+                    error: `${providerName} API key not configured. Please set up your API key in the extension options.` 
+                });
                 return;
             }
-            aiService = new AIService(settings.openaiApiKey);
+            aiService = new AIService(apiKey, provider);
         }
         
         // Set the model if specified
-        if (settings.openaiModel) {
-            aiService.setModel(settings.openaiModel);
+        if (model) {
+            aiService.setModel(model);
         }
         
         // Log the request (without API keys)
         console.log('Generating proposal with options:', {
             ...message.options,
-            model: settings.openaiModel || 'default'
+            provider: provider,
+            model: model || 'default'
         });
         
         // Generate proposal
@@ -114,7 +141,7 @@ async function handleProposalGeneration(message, sendResponse) {
 }
 
 /**
- * Save the API key
+ * Save the API key (legacy support)
  * @param {string} apiKey - The API key to save
  * @param {Function} sendResponse - Function to send response
  */
@@ -130,7 +157,28 @@ async function saveApiKey(apiKey, sendResponse) {
 }
 
 /**
- * Get the current API key
+ * Save the API configuration (provider, key, model)
+ * @param {string} apiKey - The API key to save
+ * @param {string} provider - The AI provider ('openai' or 'anthropic')
+ * @param {string} model - The model to use
+ * @param {Function} sendResponse - Function to send response
+ */
+async function saveApiConfig(apiKey, provider, model, sendResponse) {
+    try {
+        // Reinitialize the AI service with new configuration
+        aiService = new AIService(apiKey, provider);
+        if (model) {
+            aiService.setModel(model);
+        }
+        sendResponse({ success: true });
+    } catch (error) {
+        console.error('Error saving API configuration:', error);
+        sendResponse({ error: error.message });
+    }
+}
+
+/**
+ * Get the current API key (legacy support)
  * @param {Function} sendResponse - Function to send response
  */
 async function getApiKey(sendResponse) {
